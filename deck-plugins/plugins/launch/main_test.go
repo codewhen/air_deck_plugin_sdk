@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	coreapi "github.com/codewhen/airdeck-plugin-sdk/capabilities/generated/go/apps"
+	coreapi "github.com/codewhen/air_deck_plugin_sdk/capabilities/generated/go/apps"
 	"testing"
 )
 

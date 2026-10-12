@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"runtime"
 
-	"github.com/codewhen/airdeck-plugin-sdk/deck-plugins/sdk/go/decksdk"
+	"github.com/codewhen/air_deck_plugin_sdk/deck-plugins/sdk/go/decksdk"
 )
 
 const pluginID = "com.example.echo"

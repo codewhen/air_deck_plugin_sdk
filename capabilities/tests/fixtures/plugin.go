@@ -1,5 +1,5 @@
 package main
-import("context";"encoding/json";"fmt";"time";"github.com/codewhen/airdeck-plugin-sdk/deck-plugins/sdk/go/decksdk";"github.com/codewhen/airdeck-plugin-sdk/capabilities/generated/go/media")
+import("context";"encoding/json";"fmt";"time";"github.com/codewhen/air_deck_plugin_sdk/deck-plugins/sdk/go/decksdk";"github.com/codewhen/air_deck_plugin_sdk/capabilities/generated/go/media")
 type plugin struct{client *media.Client}
 func(p *plugin)Init(h *decksdk.Host){p.client=media.NewClient(h)}
 func(p *plugin)Catalog()[]decksdk.Button{return nil}

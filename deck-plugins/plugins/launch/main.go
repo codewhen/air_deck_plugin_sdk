@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
-	coreapi "github.com/codewhen/airdeck-plugin-sdk/capabilities/generated/go/apps"
+	coreapi "github.com/codewhen/air_deck_plugin_sdk/capabilities/generated/go/apps"
 
-	"github.com/codewhen/airdeck-plugin-sdk/deck-plugins/sdk/go/decksdk"
+	"github.com/codewhen/air_deck_plugin_sdk/deck-plugins/sdk/go/decksdk"
 )
 
 type plugin struct{ client *coreapi.Client }

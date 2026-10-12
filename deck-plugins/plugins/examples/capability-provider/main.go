@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"encoding/json"
-	counter "github.com/codewhen/airdeck-plugin-sdk/deck-plugins/sdk/generated-examples/go/com_example_counter_counter"
-	"github.com/codewhen/airdeck-plugin-sdk/deck-plugins/sdk/go/decksdk"
+	counter "github.com/codewhen/air_deck_plugin_sdk/deck-plugins/sdk/generated-examples/go/com_example_counter_counter"
+	"github.com/codewhen/air_deck_plugin_sdk/deck-plugins/sdk/go/decksdk"
 )
 
 type plugin struct{}

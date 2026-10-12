@@ -1,3 +1,3 @@
-module github.com/codewhen/airdeck-plugin-sdk/capabilities
+module github.com/codewhen/air_deck_plugin_sdk/capabilities
 
 go 1.26.9
