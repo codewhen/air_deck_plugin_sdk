@@ -54,7 +54,7 @@ Protect shared mutable state with the language's synchronization mechanisms. Avo
 
 ## Optional polling
 
-A manifest can request a `poll_tier`; the helper schedules polls. Do not start an independent recurring timer just to duplicate the host scheduler.
+A manifest can request a `poll_tier`; the helper schedules polls. Current tier names are `high`, `normal` and `low`. The default policy uses 250 ms, 1,000 ms and 15,000 ms respectively, but the helper can configure those intervals. They are scheduling defaults, not timing guarantees. Do not start an independent recurring timer just to duplicate the host scheduler.
 
 The signatures differ: Go's optional `Poll() error` performs refresh/publish work, Python may implement `poll()`, Java has a default `poll()` method and C++ has a virtual `poll()`. Prefer declared capability topics for shared state rather than relying on identical polling return shapes across languages.
 

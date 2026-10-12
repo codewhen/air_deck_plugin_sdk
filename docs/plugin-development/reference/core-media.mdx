@@ -11,7 +11,7 @@ Declare the permissions needed by your selected methods/topics and a compatible 
 
 Playback/track availability depends on the operating system and media application. Inspect `available`; an unknown or unavailable snapshot is not a playing/paused guarantee. A successful next/previous command does not prove the prepared player has another track.
 
-Volume and mute are separate values. Use `setMute` for mute state rather than assuming a zero volume is equivalent. Respect the numeric ranges below. Subscribe to playback/track/volume topics when a UI needs current state.
+Volume `level` is normalized from 0 to 1: 0.5 means 50%. An adjustment `delta` of 0.1 represents ten percentage points. Volume and mute are separate values. Use `setMute` for mute state rather than assuming a zero volume is equivalent. Respect the numeric ranges below. Subscribe to playback/track/volume topics when a UI needs current state.
 
 ## Permission IDs
 
@@ -226,7 +226,7 @@ Example value shape:
 
 ```json
 {
-  "status": "playing",
+  "status": "unknown",
   "available": false
 }
 ```

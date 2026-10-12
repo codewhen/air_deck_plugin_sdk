@@ -8,7 +8,7 @@ OUT=ROOT/'docs/plugin-development/reference'
 NOTES={
  'core.media': ('Media capability','Playback, track metadata, system volume and mute.', '''Playback/track availability depends on the operating system and media application. Inspect `available`; an unknown or unavailable snapshot is not a playing/paused guarantee. A successful next/previous command does not prove the prepared player has another track.
 
-Volume and mute are separate values. Use `setMute` for mute state rather than assuming a zero volume is equivalent. Respect the numeric ranges below. Subscribe to playback/track/volume topics when a UI needs current state.'''),
+Volume `level` is normalized from 0 to 1: 0.5 means 50%. An adjustment `delta` of 0.1 represents ten percentage points. Volume and mute are separate values. Use `setMute` for mute state rather than assuming a zero volume is equivalent. Respect the numeric ranges below. Subscribe to playback/track/volume topics when a UI needs current state.'''),
  'core.keyboard': ('Keyboard capability','Supported key presses and hotkey combinations.', '''The current core key-press implementation accepts the lowercase keys `up`, `down`, `left`, `right` and `enter`. The string schema is not a promise that every possible key name is supported. Unsupported names return `invalid_arguments`.
 
 Use `hotkey` for a supported combination and test its platform-specific parsing and effect. Avoid leaving keys pressed or assuming a keyboard layout is identical on every machine.'''),
@@ -38,7 +38,9 @@ def value(field):
     return int(lo) if typ=='integer' else (0.5 if lo<=0.5<=hi else 1 if lo<=1<=hi else lo)
 
 def sample(contract,typename):
-    return {name:value(field) for name,field in contract['types'][typename]['properties'].items()}
+    result = {name:value(field) for name,field in contract['types'][typename]['properties'].items()}
+    if result.get('available') is False and 'status' in result: result['status']='unknown'
+    return result
 
 def generate(contract):
     cap=contract['id'];title,description,notes=NOTES[cap]

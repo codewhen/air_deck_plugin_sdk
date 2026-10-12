@@ -45,3 +45,38 @@ The starter builder assumes Go projects are inside its SDK module. A separate re
 ## Files to keep out of releases
 
 Exclude private credentials, upload/signing keys, personal config, caches, test outputs and obsolete platform binaries. Include only the runtime files your manifest needs and appropriate notices. The packer is explicit; it does not find every transitive dependency automatically.
+
+## A separate Go repository with a local SDK checkout
+
+For private implementation work, keep your project outside the public SDK before committing it. For example:
+
+```text
+workspace/
+  air_deck_plugin_sdk/
+  my-plugin/
+    go.mod
+    main.go
+    manifest.json
+```
+
+A development `go.mod` in `my-plugin` can point to the two sibling SDK modules:
+
+```go
+module example.com/my-plugin
+
+go 1.26.9
+
+require (
+    github.com/codewhen/air_deck_plugin_sdk/deck-plugins v0.0.0
+    github.com/codewhen/air_deck_plugin_sdk/capabilities v0.0.0
+)
+
+replace github.com/codewhen/air_deck_plugin_sdk/deck-plugins => ../air_deck_plugin_sdk/deck-plugins
+replace github.com/codewhen/air_deck_plugin_sdk/capabilities => ../air_deck_plugin_sdk/capabilities
+```
+
+Here `v0.0.0` is a local-development placeholder resolved by the replacements, not a published SDK release to download. Pin the SDK checkout to a reviewed commit. Match the Go version required by the SDK's module files when upgrading.
+
+Build your own module with `go build`, prepare a runtime directory with its executable/manifest/resources, then use the generic packer. The included starter builder assumes a project inside its SDK module, so it is not the build system for this separate repository.
+
+For a published Go module dependency, use real available module versions or commit-derived versions and configure both modules explicitly. Do not expect the SDK's local replacement directives to apply automatically to a downstream consumer.

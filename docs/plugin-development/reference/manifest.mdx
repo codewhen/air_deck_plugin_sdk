@@ -65,7 +65,7 @@ On Windows, native binaries use `.exe`. `tools/build_examples.py` selects the co
 
 `ack` defaults to true when omitted. With acknowledgement enabled, an invocation is expected to return success or error. `ack: false` is a fire-and-forget setting for specialized traffic; it reduces the caller's ability to observe failure. Keep the starter's default acknowledgement behavior.
 
-`poll_tier` opts into host-scheduled refresh. Use the host scheduler instead of your own repeating timer. The supported tier policy belongs to the helper release; do not hardcode guessed intervals into a plugin contract.
+`poll_tier` opts into host-scheduled refresh. Use the host scheduler instead of your own repeating timer. Use `high`, `normal` or `low`. The helper owns the configurable timing policy; do not implement an independent timer using a guessed interval.
 
 `builtin` identifies helper-managed packages. Community manifests should not claim built-in status. Being bundled is not elevated broker authority and does not remove required permission checks.
 
