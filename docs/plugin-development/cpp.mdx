@@ -1,0 +1,58 @@
+---
+title: "C++ tutorial"
+description: "Build, package and test a C++ plugin."
+---
+
+## What you will build
+
+Echo Beep exposes one button in the phone's Stream Deck library. The helper sends its `beep` action to your desktop plugin. The source is in `deck-plugins/plugins/examples/cpp`.
+
+## Prepare the toolchain
+
+Install a C++17 compiler, then [clone the SDK](./getting-started). Run commands below from the SDK root. On Windows, use `python` in place of `python3`.
+
+## Read the implementation
+
+Derive from `decksdk::DeckPlugin`, implement `catalog()` and `invoke()`, then call `decksdk::run(plugin)`.
+
+```cpp
+#include "decksdk.hpp"
+// See main.cpp for EchoPlugin's catalog and invoke implementations.
+int main() {
+    EchoPlugin plugin;
+    decksdk::run(plugin);
+}
+```
+
+The template includes the SDK header and its pinned nlohmann JSON header. The builder passes both include directories, uses C++17 and creates a native executable. C++ standard-library runtime requirements still depend on your target toolchain.
+
+## Build and package
+
+```sh
+python3 tools/build_examples.py cpp
+```
+
+The package is `deck-plugins/dist/examples/cpp/com.example.echo.deckPlugin`.
+
+## Test and install
+
+```sh
+python3 tools/test_packaged_examples.py deck-plugins/dist/examples/cpp/com.example.echo.deckPlugin
+```
+
+Install the package through AirDeck Helper → Plugins. Add Echo Beep on the phone, save the layout and tap it. Other language tutorials share the same plugin ID; install only one Echo implementation at a time.
+
+## Make it your own
+
+Copy the template inside `deck-plugins/plugins`, change its manifest ID/name and the plugin ID reported by the implementation, then edit the action logic. Keep the template filenames and class name for this builder.
+
+```sh
+python3 -c "import shutil; shutil.copytree('deck-plugins/plugins/examples/cpp', 'deck-plugins/plugins/my-plugin')"
+python3 tools/build_examples.py cpp --plugin-dir deck-plugins/plugins/my-plugin
+```
+
+The builder reads your manifest ID to name the package. Use a stable namespace you control, and update the catalog's plugin ID to match. Declare broker permissions before adding [core capability calls](./capabilities). See [distribution](./distribution) for other package layouts.
+
+## Platform status
+
+The example build, extracted catalog and invoke checks are verified on macOS. Windows commands and native launchers are included but require an actual Windows helper test before claiming Windows support.

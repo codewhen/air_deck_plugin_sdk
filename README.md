@@ -37,3 +37,13 @@ Project code is licensed under Apache-2.0. Vendored third-party files retain the
 ## Community plugin development
 
 This public repository provides SDK source, capability contracts, examples and packaging tools for creating independent community plugins. Developers may build and include the SDK in their own plugin executables under its license. Their plugins may be open source or closed source, free or paid. AirDeck-owned private plugin implementations are maintained outside this repository and may be distributed as binary packages. The SDK is a library/toolkit; it does not require bundling a separate SDK executable.
+
+## Developer documentation
+
+The website at https://www.codewhen.com/airdeck/docs renders the public guide in [docs/plugin-development](docs/plugin-development/index.mdx). Submit documentation contributions here. The website adopts reviewed SDK commits; updates are not deployed automatically from this repository.
+
+```sh
+python3 tools/check_docs.py
+python3 tools/build_examples.py all --gson /path/to/gson.jar
+python3 tools/test_packaged_examples.py deck-plugins/dist/examples/*/*.deckPlugin
+```

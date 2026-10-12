@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 # Unix launcher — manifest entrypoint for macOS/Linux.
 DIR="$(cd "$(dirname "$0")" && pwd)"
-exec java -jar "$DIR/echo-plugin.jar"
+exec java -cp "$DIR/echo-plugin.jar:$DIR/gson.jar" com.example.echo.EchoPlugin

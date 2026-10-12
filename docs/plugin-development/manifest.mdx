@@ -1,0 +1,58 @@
+---
+title: "Manifest reference"
+description: "Declare identity, entrypoint, resources and required capabilities."
+---
+
+Every plugin package has a `manifest.json` at its root.
+
+## A minimal manifest
+
+```json
+{
+  "id": "com.example.echo",
+  "name": "Echo Beep",
+  "version": "1.0.0",
+  "api_version": 2,
+  "entrypoint": "./echo-plugin",
+  "permissions": [],
+  "files": []
+}
+```
+
+## Identity and execution
+
+| Field | Meaning |
+| --- | --- |
+| `id` | Stable plugin ID. Use a namespace you control. Saved deck actions reference it. |
+| `name` | User-visible name. |
+| `version` | Semantic version of the plugin. |
+| `api_version` | `2` for the current executable SDK. |
+| `entrypoint` | Relative path to the executable or supported executable script. |
+| `files` | Relative resource paths included in the archive. |
+| `config` | Optional relative config resource, included by the packer. |
+| `permissions` | Required capability permission IDs; an empty list means no broker permissions are requested. |
+
+The example manifests also use `mode: "targeted"` and `types: []`. Keep targeted routing for button-driven examples. Do not mark a community plugin as built-in.
+
+## Calling a capability
+
+```json
+{
+  "permissions": ["core.media.playback.control"],
+  "uses": [{"id": "core.media", "min_version": "1.0.0", "max_version": "2.0.0"}]
+}
+```
+
+All requested permissions are required. Users approve them before execution. Adding permissions in an update requires approval again; users can revoke grants in the helper.
+
+## Providing or depending on capabilities
+
+`capability_schemas` lists source schema files. The packer validates them, embeds the contracts as `capabilities`, and includes schema files in the package. Provider capability and permission IDs must use the provider plugin ID namespace.
+
+Consumers declare `dependencies` for the provider plugin and `uses` for its capability. `min_version` is inclusive and `max_version` is exclusive. See [providers](./providers) for a complete example.
+
+## Resource safety
+
+Entrypoints and resources stay inside the package. Absolute paths, parent traversal and escaping symlinks are rejected by the packer. Explicitly list runtime dependencies: missing local files are not fetched automatically.
+
+On Windows, native binaries use `.exe`. `tools/build_examples.py` selects the correct entrypoint and packs the runtime files. Changing an ID requires changing the ID reported by the code as well.

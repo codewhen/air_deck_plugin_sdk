@@ -1,0 +1,43 @@
+---
+title: "Package and distribute"
+description: "Ship runtime-complete packages for the correct operating system."
+---
+
+## Build a tutorial package
+
+From the SDK root:
+
+```sh
+python3 tools/build_examples.py go
+python3 tools/build_examples.py python
+python3 tools/build_examples.py java --gson /absolute/path/to/gson.jar
+python3 tools/build_examples.py cpp
+```
+
+Outputs are separated by language under `deck-plugins/dist/examples`. All Echo examples use the same plugin ID, so install one at a time. The builder selects Windows native launchers when run on Windows.
+
+## Package your own plugin
+
+The tutorials explain how to copy and adapt a template, then use `--plugin-dir`. For other layouts, put your executable, resources and manifest in a directory and run:
+
+```sh
+python3 capabilities/tools/pack_plugin.py path/to/plugin path/to/output
+```
+
+The resulting `.deckPlugin` is a ZIP archive. It contains the manifest, entrypoint, declared files, optional config and validated provider schemas. The packer does not compile source, discover missing libraries or install runtimes for users.
+
+## Platform and runtime requirements
+
+Go and C++ plugins are native binaries: build and verify on each supported OS/architecture. Do not rename a macOS executable to `.exe` or assume a Linux binary runs on Windows.
+
+Python example packages include SDK Python files but still require Python on PATH. Java examples include SDK classes and a separate Gson JAR, but still require Java 17+. Windows Java/Python examples use a native launcher built with Go so the helper can start them directly. Neither bundles the interpreter/JVM.
+
+## License and update information
+
+Preserve SDK and dependency notices when redistributing. The generated examples include SDK licensing notices. Your own plugin's license and whether it is free or paid are your choices, subject to the licenses of included dependencies.
+
+Keep the plugin ID stable. Increase the version for releases and declare compatible capabilities/dependencies. New permissions require user approval. Test saved buttons across updates and document new runtime requirements.
+
+## Publishing
+
+Distribute the binary package and clear installation instructions. Marketplace submission is a maintainer-reviewed process; there is no public self-service upload API documented here. Open an SDK issue to discuss publication. Do not commit generated binaries or secrets into documentation pull requests.

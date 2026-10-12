@@ -5,3 +5,5 @@ Open an issue describing your proposal or bug, then submit a focused pull reques
 Keep protocol and permission changes backward compatible within a major version. Breaking capability contract changes require a major version increase and updated fixtures. Generated files come from capability schemas; update schemas and regenerate rather than editing generated clients manually.
 
 Keep diagnostics on stderr and protocol messages on stdout. Do not commit credentials, personal OBS configuration, built executables or plugin archives. Contributions are accepted under the project's Apache-2.0 license.
+
+Developer documentation lives in `docs/plugin-development`. Use title/description frontmatter, update `meta.json` for new pages, and run `python3 tools/check_docs.py`. The website renders a pinned commit of this content.

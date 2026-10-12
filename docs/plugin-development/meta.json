@@ -1,0 +1,19 @@
+{
+  "title": "Plugin development",
+  "pages": [
+    "index",
+    "getting-started",
+    "go",
+    "python",
+    "java",
+    "cpp",
+    "manifest",
+    "protocol",
+    "capabilities",
+    "providers",
+    "distribution",
+    "testing",
+    "troubleshooting",
+    "contributing"
+  ]
+}

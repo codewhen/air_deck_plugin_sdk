@@ -1,0 +1,28 @@
+---
+title: "Build an AirDeck plugin"
+description: "Turn a desktop action into a button on your phone."
+---
+
+AirDeck plugins run on **AirDeck Helper**, the computer-side app. They expose actions that people add to their phone's Stream Deck layout. You can create one in Go, Python, Java or C++.
+
+The public SDK handles the API v2 JSON protocol. You implement a catalog of buttons and the action behind each button. For supported desktop operations, call the helper's typed, permission-controlled capabilities.
+
+## Start with a working plugin
+
+1. [Set up the SDK](./getting-started).
+2. Follow the [Go](./go), [Python](./python), [Java](./java) or [C++](./cpp) tutorial.
+3. [Package, install and test](./distribution) your plugin on AirDeck Helper.
+
+All four tutorials start with Echo Beep: a small action that plays a sound when tapped. A verified package should work after extraction into a fresh directory, without the SDK checkout beside it.
+
+## Extend the desktop
+
+Read the [manifest reference](./manifest) for identity and permissions. Use [core capabilities](./capabilities) for media, keyboard, pointer and app operations. Advanced plugins can [provide capabilities](./providers) for other plugins.
+
+Plugins are executable software, not a sandbox. Capability permissions control access through AirDeck's broker; they do not restrict every OS operation an executable could perform. Install packages only from authors you trust.
+
+## Own your implementation
+
+The SDK is Apache-2.0 licensed. Your plugin can be open source or closed source, and distributed free or paid. SDK and third-party notices still apply. AirDeck's privately maintained plugins, including OBS, are not part of this public repository.
+
+This guide covers plugin API **v2**. Dedicated custom mobile plugin screens are not supported yet. Each tutorial notes runtime requirements and platform differences.

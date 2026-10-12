@@ -1,0 +1,60 @@
+---
+title: "Java tutorial"
+description: "Build, package and test a Java plugin."
+---
+
+## What you will build
+
+Echo Beep exposes one button in the phone's Stream Deck library. The helper sends its `beep` action to your desktop plugin. The source is in `deck-plugins/plugins/examples/java`.
+
+## Prepare the toolchain
+
+Install JDK 17+ and a Gson JAR, then [clone the SDK](./getting-started). Run commands below from the SDK root. On Windows, use `python` in place of `python3`.
+
+## Read the implementation
+
+Implement `DeckPlugin`, return `List<Button>` from `catalog`, implement `invoke`, and run `PluginHost.run(new EchoPlugin())`.
+
+```java
+public List<Button> catalog() {
+    return List.of(new Button("echo.beep", "Echo Beep", "beep", "com.example.echo"));
+}
+public static void main(String[] args) throws Exception {
+    PluginHost.run(new EchoPlugin());
+}
+```
+
+The complete `EchoPlugin.java` includes SDK imports and the action implementation. Gson supplies JSON encoding for the SDK. Obtain a Gson JAR from the official Maven Central artifact or an existing vetted local cache. Pass its absolute path; the builder copies it into the package, so users do not need a separate Gson installation.
+
+## Build and package
+
+```sh
+python3 tools/build_examples.py java --gson /absolute/path/to/gson.jar
+```
+
+The package is `deck-plugins/dist/examples/java/com.example.echo.deckPlugin`.
+
+The package contains the plugin/SDK classes, Gson and a launcher. Users need Java 17+ on PATH. Windows packaging also uses Go at build time for a native launcher.
+
+## Test and install
+
+```sh
+python3 tools/test_packaged_examples.py deck-plugins/dist/examples/java/com.example.echo.deckPlugin
+```
+
+Install the package through AirDeck Helper → Plugins. Add Echo Beep on the phone, save the layout and tap it. Other language tutorials share the same plugin ID; install only one Echo implementation at a time.
+
+## Make it your own
+
+Copy the template inside `deck-plugins/plugins`, change its manifest ID/name and the plugin ID reported by the implementation, then edit the action logic. Keep the template filenames and class name for this builder.
+
+```sh
+python3 -c "import shutil; shutil.copytree('deck-plugins/plugins/examples/java', 'deck-plugins/plugins/my-plugin')"
+python3 tools/build_examples.py java --plugin-dir deck-plugins/plugins/my-plugin --gson /absolute/path/to/gson.jar
+```
+
+The builder reads your manifest ID to name the package. Use a stable namespace you control, and update the catalog's plugin ID to match. Declare broker permissions before adding [core capability calls](./capabilities). See [distribution](./distribution) for other package layouts.
+
+## Platform status
+
+The example build, extracted catalog and invoke checks are verified on macOS. Windows commands and native launchers are included but require an actual Windows helper test before claiming Windows support.

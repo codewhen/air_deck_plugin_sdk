@@ -3,7 +3,7 @@ package com.example.echo;
 import com.airdeck.decksdk.Button;
 import com.airdeck.decksdk.DeckPlugin;
 import com.airdeck.decksdk.PluginHost;
-import java.awt.Toolkit;
+import java.io.IOException;
 import java.util.List;
 
 /** Echo Beep — Java example plugin using the decksdk. */
@@ -28,10 +28,18 @@ public final class EchoPlugin implements DeckPlugin {
     if (action != null && !action.isEmpty() && !"beep".equals(action)) {
       throw new IllegalArgumentException("unknown action: " + action);
     }
-    Toolkit.getDefaultToolkit().beep();
+    String os = System.getProperty("os.name", "").toLowerCase();
+    ProcessBuilder sound = os.contains("mac")
+        ? new ProcessBuilder("afplay", "/System/Library/Sounds/Tink.aiff")
+        : os.contains("win")
+            ? new ProcessBuilder("powershell", "-NoProfile", "-Command", "[console]::beep(880,180)")
+            : new ProcessBuilder("paplay", "/usr/share/sounds/freedesktop/stereo/message.oga");
     try {
-      Thread.sleep(120);
-    } catch (InterruptedException ignored) {
+      sound.redirectOutput(ProcessBuilder.Redirect.DISCARD)
+          .redirectError(ProcessBuilder.Redirect.INHERIT).start().waitFor();
+    } catch (IOException error) {
+      System.err.println("[echo] sound unavailable: " + error.getMessage());
+    } catch (InterruptedException interrupted) {
       Thread.currentThread().interrupt();
     }
   }

@@ -1,0 +1,62 @@
+---
+title: "Use core capabilities"
+description: "Call typed media, keyboard, pointer and app operations."
+---
+
+## Available contracts
+
+The authoritative contracts are under `capabilities/schemas`. Generated clients are under `capabilities/generated`; Python clients also ship in its SDK package.
+
+| Capability | Operations |
+| --- | --- |
+| `core.media` | Playback, track details, volume and mute |
+| `core.keyboard` | Keyboard operations |
+| `core.pointer` | Pointer operations |
+| `core.apps` | Application catalog and launching |
+
+Read each schema for exact method names, payload types and permission IDs. Supported behavior depends on the user's OS and helper version. A successful command does not guarantee that a player supports every operation.
+
+## Go media example
+
+```go
+import (
+    "context"
+    media "github.com/codewhen/air_deck_plugin_sdk/capabilities/generated/go/media"
+    "github.com/codewhen/air_deck_plugin_sdk/deck-plugins/sdk/go/decksdk"
+)
+
+type plugin struct { media *media.Client }
+func (p *plugin) Init(host *decksdk.Host) {
+    p.media = media.NewClient(host)
+}
+// Inside Invoke, return the error from the operation:
+// _, err := p.media.TogglePlayback(context.Background(), media.Empty{})
+```
+
+Declare `core.media.playback.control` in permissions and the `core.media` compatible version in `uses`. Add read permissions only when reading playback, track or volume state.
+
+## Python media example
+
+```python
+from airdeck_sdk.core.media import Client, Empty
+
+def init(self, host):
+    self.media = Client(host)
+
+# Inside invoke:
+# self.media.toggle_playback(Empty())
+```
+
+In Java, generated clients are in `com.airdeck.capabilities`; pass `PluginHost` as transport. In C++, include the generated capability header and instantiate its client with the host transport. Both complete SDK transport examples are exercised by the public cross-language integration tests.
+
+## Subscriptions and permissions
+
+Use the generated subscribe methods for updates rather than polling continuously. Store the returned unsubscribe function and release it when the consumer no longer needs updates. Handle denied permissions and unavailable services visibly; do not silently fall back to unintended OS input.
+
+If a capability schema changes, regenerate with:
+
+```sh
+python3 capabilities/tools/generate.py
+```
+
+Private helper integration assets are not required for community plugin development.

@@ -42,7 +42,7 @@ cd deck-plugins
 ./scripts/pack_deckplugin.sh plugins/myplugin
 ```
 
-The PC helper offers hotkey and launch packages. OBS is optional and packed into `dist/`. Core mouse, keyboard, media and volume functionality is hosted in Go without sidecars. Legacy plugins must adopt API v2 and required permission declarations; see [architecture and migration](../docs/capability-architecture.md).
+The PC helper offers hotkey and launch packages. OBS is maintained outside this public repository; its implementation is private. Core mouse, keyboard, media and volume functionality is hosted in Go without sidecars. Legacy plugins must adopt API v2 and required permission declarations; see [architecture and migration](../docs/capability-architecture.md).
 
 ### Bundling into the PC Helper
 

@@ -1,0 +1,34 @@
+---
+title: "Troubleshooting"
+description: "Find missing runtimes, permissions and protocol problems."
+---
+
+## The plugin cannot start
+
+Check the manifest entrypoint and archive contents. A native binary must match the computer's OS/architecture. Unix scripts need an executable mode and a valid shebang. Python/Java require their runtime on PATH as seen by the helper process; restart the helper after changing PATH.
+
+On Windows, use the native Python/Java launcher produced by the builder. A `.bat` file is not a substitute for a native entrypoint in the current helper.
+
+## Python reports a missing module
+
+The package needs a local `sdk` directory, not a path into your SDK checkout. Rebuild with `tools/build_examples.py python`. External Python dependencies must be packaged or documented explicitly; the SDK packer does not install them.
+
+## Java reports a missing Gson class
+
+Rebuild with `--gson /absolute/path/to/gson.jar`. The package must include `gson.jar`; the launcher uses both it and `echo-plugin.jar` on the classpath. An environment variable on the developer computer is not a packaged dependency.
+
+## Catalog or invoke does not receive a reply
+
+Check for debug prints on stdout, malformed JSON or manually implemented framing. Use the SDK so every reply preserves `ipc_id`. Keep logging on stderr. Avoid blocking the protocol reader while waiting for a capability reply.
+
+## A capability call fails
+
+Read the structured error and review granted permissions, declared `uses`, provider installation and compatible versions. The helper's OS permissions are separate from a plugin's broker permissions. A media player may not expose metadata or support next/previous controls.
+
+## The wrong action appears after an update
+
+Keep button IDs and plugin ID stable and make them match the manifest and catalog. Different Echo tutorial implementations share an ID; remove the previous example or update it before installing another language variant.
+
+## Need help?
+
+Open an issue in the public SDK repository with helper/SDK versions, OS/architecture, a minimal reproduction and redacted stderr logs. Never include credentials or personal configuration values.

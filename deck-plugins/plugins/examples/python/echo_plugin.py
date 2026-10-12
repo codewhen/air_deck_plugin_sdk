@@ -8,8 +8,13 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Prefer the monorepo SDK without installing a package.
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "sdk" / "python"))
+# Packaged plugins carry their runtime SDK beside the script.
+local_sdk = Path(__file__).resolve().parent / "sdk"
+if local_sdk.is_dir():
+    sys.path.insert(0, str(local_sdk))
+else:
+    # Source-checkout development only; installed packages use local_sdk.
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "sdk" / "python"))
 
 from decksdk import DeckPlugin, run  # noqa: E402
 

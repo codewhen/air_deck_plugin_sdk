@@ -1,0 +1,35 @@
+---
+title: "Test your plugin"
+description: "Validate protocol, packaging and the real button journey."
+---
+
+## Test the SDK and your implementation
+
+```sh
+go -C deck-plugins test ./...
+python3 -m unittest discover -s deck-plugins/sdk/python/tests -v
+python3 -m unittest discover -s capabilities/tests -p test_contracts.py -v
+```
+
+Test your own action logic separately from the SDK. For cross-language transport fixtures, install a C++17 compiler, JDK and Gson, then run `python3 -m unittest discover -s capabilities/tests -v` with `GSON_JAR` set.
+
+## Verify installed tutorial packages
+
+```sh
+python3 tools/test_packaged_examples.py   deck-plugins/dist/examples/go/com.example.echo.deckPlugin   deck-plugins/dist/examples/python/com.example.echo.deckPlugin   deck-plugins/dist/examples/java/com.example.echo.deckPlugin   deck-plugins/dist/examples/cpp/com.example.echo.deckPlugin
+```
+
+This exercises catalog, successful invocation, unknown-action errors and correlation from a fresh extracted directory. It clears `PYTHONPATH` and `CLASSPATH` so a developer's environment cannot mask missing dependencies. It plays a brief beep for each implementation.
+
+## Release checklist
+
+- Install the package on a clean test profile with the required runtime.
+- Verify the catalog, add the button on Android, save and tap it.
+- Verify success, invalid input, unavailable dependencies and failed external operations.
+- For broker capabilities, test permission denial and revocation, compatible and incompatible providers, and unavailable OS features.
+- Test helper restart, plugin crash, disable/remove and reinstall.
+- Test an upgrade with the same plugin ID and saved deck actions.
+- Verify every OS/architecture you claim, including the Windows helper rather than only a cross-compilation.
+- Inspect the archive for missing resources, secrets, personal config and unexpected binaries.
+
+The currently documented example packaging was executed on macOS. Windows-specific launchers and commands are supplied for verification; compilation on another OS does not certify Windows execution.

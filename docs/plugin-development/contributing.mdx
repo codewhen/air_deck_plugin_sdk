@@ -1,0 +1,24 @@
+---
+title: "Contribute to the SDK and docs"
+description: "Improve the public toolkit and the documentation shown on CodeWhen."
+---
+
+## Where contributions go
+
+Documentation shown at CodeWhen is authored in `docs/plugin-development` in the public `codewhen/air_deck_plugin_sdk` repository. Use **Edit this page** to open the corresponding source on GitHub. Submit documentation changes there, not a copied page in the website repository.
+
+The website pins a reviewed SDK commit. Merged SDK changes appear on CodeWhen after the website updates its pin and is deployed; they are not fetched live from GitHub on every request.
+
+## Documentation pull requests
+
+Use Markdown or MDX with a `title` and `description` in frontmatter. Link sibling pages using relative paths and preserve existing URLs where possible. Keep code examples runnable and include prerequisites. Plain Markdown is preferred; only use MDX components already supplied by the website.
+
+Update `meta.json` when adding or reordering a page. Explain any new runtime or platform requirement. Do not claim that a platform was tested if you only reviewed commands.
+
+## SDK pull requests
+
+Follow `CONTRIBUTING.md` in the SDK root. Include regression coverage for changed behavior. Generate contract clients from schemas rather than editing generated files by hand. Breaking contract changes require the appropriate major version change.
+
+## Source ownership
+
+The public SDK is Apache-2.0 licensed. Community plugin implementations may have their own license and distribution model. AirDeck-owned private implementations such as OBS stay outside this repository. Do not upload private plugin source, signing keys, personal configs or generated packages as documentation assets.

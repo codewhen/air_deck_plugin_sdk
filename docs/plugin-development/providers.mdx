@@ -1,0 +1,55 @@
+---
+title: "Provide capabilities"
+description: "Expose a namespaced service that another plugin can use."
+---
+
+The SDK includes a typed Counter Provider and Counter Reader. Start with these when one plugin should offer a reusable service to another.
+
+## Provider contract
+
+The provider has plugin ID `com.example.counter` and capability ID `com.example.counter.counter`. Its schema lives under `plugins/examples/capability-provider/schemas/counter.json`. It declares `getCount` and the `count` topic.
+
+```json
+{
+  "id": "com.example.counter",
+  "name": "Counter Provider",
+  "version": "1.0.0",
+  "api_version": 2,
+  "entrypoint": "./counter-plugin",
+  "permissions": [],
+  "capability_schemas": ["schemas/counter.json"]
+}
+```
+
+Register a dispatcher with the SDK's `Provide`/`provide` API and publish values through `Publish`/`publish`. The example's own provider does not need a consumer read permission to expose its service.
+
+## Generate client and provider types
+
+From the SDK root:
+
+```sh
+python3 capabilities/tools/generate.py   --schemas deck-plugins/plugins/examples/capability-provider/schemas   --out deck-plugins/sdk/generated-examples
+```
+
+Use the generated dispatch function in your provider and its generated client in consumers. Keep capability and permission IDs under your plugin namespace.
+
+## Consumer manifest
+
+```json
+{
+  "dependencies": [{"id":"com.example.counter","min_version":"1.0.0","max_version":"2.0.0"}],
+  "uses": [{"id":"com.example.counter.counter","provider":"com.example.counter","min_version":"1.0.0","max_version":"2.0.0"}],
+  "permissions": ["com.example.counter.counter.read"]
+}
+```
+
+This is a manifest fragment; retain the consumer's identity and entrypoint fields. Dependencies are resolved through the configured marketplace or bundled packages, not arbitrary URLs supplied by a plugin. For local testing, install the provider package before the consumer.
+
+## Build the pair
+
+```sh
+cd deck-plugins
+bash scripts/build_all.sh
+```
+
+Install `dist/com.example.counter.deckPlugin`, then `dist/com.example.counter-button.deckPlugin`. Tap Read Counter and inspect the helper logs for `Counter: 42`. The initial published state and permission/compatibility checks are also covered by SDK and helper tests.

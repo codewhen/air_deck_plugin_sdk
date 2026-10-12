@@ -22,3 +22,15 @@ jobs:
         run: python3 -m unittest discover -s capabilities/tests -p test_contracts.py -v
       - name: Package plugins
         run: bash deck-plugins/scripts/build_all.sh
+      - name: Developer documentation
+        run: python3 tools/check_docs.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Get Gson from Maven Central
+        run: curl --fail --location https://repo.maven.apache.org/maven2/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar --output /tmp/gson.jar
+      - name: Build standalone tutorial packages
+        run: python3 tools/build_examples.py all --gson /tmp/gson.jar
+      - name: Verify extracted tutorial packages
+        run: python3 tools/test_packaged_examples.py deck-plugins/dist/examples/*/*.deckPlugin
