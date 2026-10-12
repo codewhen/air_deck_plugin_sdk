@@ -1,0 +1,44 @@
+{
+  "id": "com.example.counter.counter",
+  "version": "1.0.0",
+  "permissions": {
+    "com.example.counter.counter.read": "Read the example counter"
+  },
+  "types": {
+    "Empty": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "Count": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "methods": {
+    "getCount": {
+      "request": "Empty",
+      "result": "Count",
+      "permissions": [
+        "com.example.counter.counter.read"
+      ]
+    }
+  },
+  "topics": {
+    "count": {
+      "type": "Count",
+      "permissions": [
+        "com.example.counter.counter.read"
+      ]
+    }
+  }
+}

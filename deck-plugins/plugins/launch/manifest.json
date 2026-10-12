@@ -1,0 +1,23 @@
+{
+  "id": "com.airdeck.launch",
+  "name": "Launch App",
+  "version": "1.0.2",
+  "mode": "targeted",
+  "builtin": true,
+  "ack": true,
+  "entrypoint": "./launch-plugin",
+  "types": [
+    "plugin.command"
+  ],
+  "api_version": 2,
+  "permissions": [
+    "core.apps.launch",
+    "core.apps.read"
+  ],
+  "uses": [
+    {
+      "id": "core.apps",
+      "min_version": "1.1.0"
+    }
+  ]
+}

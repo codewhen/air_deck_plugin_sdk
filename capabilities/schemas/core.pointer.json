@@ -1,0 +1,81 @@
+{
+  "id": "core.pointer",
+  "version": "1.0.0",
+  "permissions": {
+    "core.pointer.control": "Move the pointer, click and scroll"
+  },
+  "types": {
+    "Empty": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "Motion": {
+      "type": "object",
+      "properties": {
+        "dx": {
+          "type": "number"
+        },
+        "dy": {
+          "type": "number"
+        },
+        "sensitivity": {
+          "type": "number",
+          "minimum": 0.01,
+          "maximum": 20
+        }
+      },
+      "required": [
+        "dx",
+        "dy",
+        "sensitivity"
+      ],
+      "additionalProperties": false
+    },
+    "Click": {
+      "type": "object",
+      "properties": {
+        "button": {
+          "type": "string",
+          "enum": [
+            "left",
+            "right"
+          ]
+        },
+        "double_click": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "button",
+        "double_click"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "methods": {
+    "move": {
+      "request": "Motion",
+      "result": "Empty",
+      "permissions": [
+        "core.pointer.control"
+      ]
+    },
+    "scroll": {
+      "request": "Motion",
+      "result": "Empty",
+      "permissions": [
+        "core.pointer.control"
+      ]
+    },
+    "click": {
+      "request": "Click",
+      "result": "Empty",
+      "permissions": [
+        "core.pointer.control"
+      ]
+    }
+  },
+  "topics": {}
+}

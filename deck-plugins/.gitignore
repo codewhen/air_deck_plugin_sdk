@@ -1,0 +1,40 @@
+# Packed archives (rebuild with ./scripts/build_all.sh)
+dist/
+*.deckPlugin
+
+# Built plugin entrypoints (Go / C++)
+*-plugin
+*-plugin.exe
+!plugins/examples/java/echo-plugin
+!plugins/examples/java/echo-plugin.bat
+
+# Java / JVM
+*.class
+*.jar
+**/build/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# CMake / C++
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake-install.cmake
+**/Makefile
+!**/CMakeLists.txt
+plugins/examples/cpp/build/
+
+# Go
+*.test
+*.out
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~

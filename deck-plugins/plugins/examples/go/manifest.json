@@ -1,0 +1,10 @@
+{
+  "id": "com.example.echo",
+  "name": "Echo Beep",
+  "version": "1.0.1",
+  "mode": "targeted",
+  "types": [],
+  "entrypoint": "./echo-plugin",
+  "api_version": 2,
+  "permissions": []
+}

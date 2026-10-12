@@ -1,0 +1,25 @@
+{
+  "id": "com.example.counter-button",
+  "name": "Counter Reader",
+  "version": "1.0.0",
+  "api_version": 2,
+  "permissions": [
+    "com.example.counter.counter.read"
+  ],
+  "entrypoint": "./counter-reader",
+  "dependencies": [
+    {
+      "id": "com.example.counter",
+      "min_version": "1.0.0",
+      "max_version": "2.0.0"
+    }
+  ],
+  "uses": [
+    {
+      "id": "com.example.counter.counter",
+      "provider": "com.example.counter",
+      "min_version": "1.0.0",
+      "max_version": "2.0.0"
+    }
+  ]
+}

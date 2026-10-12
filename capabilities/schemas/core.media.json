@@ -1,0 +1,248 @@
+{
+  "id": "core.media",
+  "version": "1.0.0",
+  "permissions": {
+    "core.media.playback.read": "Read playback status",
+    "core.media.playback.control": "Control media playback",
+    "core.media.track.read": "Read track title, artist and album",
+    "core.media.volume.read": "Read system volume and mute status",
+    "core.media.volume.control": "Change system volume and mute"
+  },
+  "types": {
+    "Empty": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "Playback": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "playing",
+            "paused",
+            "stopped",
+            "unknown"
+          ]
+        },
+        "available": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "status",
+        "available"
+      ],
+      "additionalProperties": false
+    },
+    "Track": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "artist": {
+          "type": "string"
+        },
+        "album": {
+          "type": "string"
+        },
+        "app": {
+          "type": "string"
+        },
+        "available": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "title",
+        "artist",
+        "album",
+        "app",
+        "available"
+      ],
+      "additionalProperties": false
+    },
+    "Volume": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "muted": {
+          "type": "boolean"
+        },
+        "available": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "level",
+        "muted",
+        "available"
+      ],
+      "additionalProperties": false
+    },
+    "SetVolume": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "level"
+      ],
+      "additionalProperties": false
+    },
+    "AdjustVolume": {
+      "type": "object",
+      "properties": {
+        "delta": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "delta"
+      ],
+      "additionalProperties": false
+    },
+    "Mute": {
+      "type": "object",
+      "properties": {
+        "muted": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "muted"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "methods": {
+    "getPlayback": {
+      "request": "Empty",
+      "result": "Playback",
+      "permissions": [
+        "core.media.playback.read"
+      ]
+    },
+    "getTrack": {
+      "request": "Empty",
+      "result": "Track",
+      "permissions": [
+        "core.media.track.read"
+      ]
+    },
+    "getVolume": {
+      "request": "Empty",
+      "result": "Volume",
+      "permissions": [
+        "core.media.volume.read"
+      ]
+    },
+    "togglePlayback": {
+      "request": "Empty",
+      "result": "Empty",
+      "permissions": [
+        "core.media.playback.control"
+      ]
+    },
+    "play": {
+      "request": "Empty",
+      "result": "Empty",
+      "permissions": [
+        "core.media.playback.control"
+      ]
+    },
+    "pause": {
+      "request": "Empty",
+      "result": "Empty",
+      "permissions": [
+        "core.media.playback.control"
+      ]
+    },
+    "next": {
+      "request": "Empty",
+      "result": "Empty",
+      "permissions": [
+        "core.media.playback.control"
+      ]
+    },
+    "previous": {
+      "request": "Empty",
+      "result": "Empty",
+      "permissions": [
+        "core.media.playback.control"
+      ]
+    },
+    "setVolume": {
+      "request": "SetVolume",
+      "result": "Empty",
+      "permissions": [
+        "core.media.volume.control"
+      ]
+    },
+    "adjustVolume": {
+      "request": "AdjustVolume",
+      "result": "Empty",
+      "permissions": [
+        "core.media.volume.control"
+      ]
+    },
+    "setMute": {
+      "request": "Mute",
+      "result": "Empty",
+      "permissions": [
+        "core.media.volume.control"
+      ]
+    }
+  },
+  "topics": {
+    "playback": {
+      "type": "Playback",
+      "permissions": [
+        "core.media.playback.read"
+      ]
+    },
+    "track": {
+      "type": "Track",
+      "permissions": [
+        "core.media.track.read"
+      ]
+    },
+    "volume": {
+      "type": "Volume",
+      "permissions": [
+        "core.media.volume.read"
+      ]
+    }
+  },
+  "groups": {
+    "core.media.read": [
+      "core.media.playback.read",
+      "core.media.track.read",
+      "core.media.volume.read"
+    ],
+    "core.media.volume": [
+      "core.media.volume.read",
+      "core.media.volume.control"
+    ],
+    "core.media.all": [
+      "core.media.playback.read",
+      "core.media.playback.control",
+      "core.media.track.read",
+      "core.media.volume.read",
+      "core.media.volume.control"
+    ]
+  }
+}

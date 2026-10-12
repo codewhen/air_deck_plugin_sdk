@@ -1,0 +1,24 @@
+name: SDK tests
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: deck-plugins/go.mod
+          cache-dependency-path: deck-plugins/go.sum
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Go SDK and plugins
+        run: go -C deck-plugins test ./...
+      - name: Python SDK
+        run: python3 -m unittest discover -s deck-plugins/sdk/python/tests -v
+      - name: Capability contracts
+        run: python3 -m unittest discover -s capabilities/tests -p test_contracts.py -v
+      - name: Package plugins
+        run: bash deck-plugins/scripts/build_all.sh

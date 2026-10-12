@@ -1,0 +1,57 @@
+{
+  "id": "core.keyboard",
+  "version": "1.0.0",
+  "permissions": {
+    "core.keyboard.press": "Send keyboard keys",
+    "core.keyboard.hotkey": "Execute keyboard shortcuts"
+  },
+  "types": {
+    "Empty": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "Key": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "additionalProperties": false
+    },
+    "Combo": {
+      "type": "object",
+      "properties": {
+        "combo": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "combo"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "methods": {
+    "press": {
+      "request": "Key",
+      "result": "Empty",
+      "permissions": [
+        "core.keyboard.press"
+      ]
+    },
+    "hotkey": {
+      "request": "Combo",
+      "result": "Empty",
+      "permissions": [
+        "core.keyboard.hotkey"
+      ]
+    }
+  },
+  "topics": {}
+}

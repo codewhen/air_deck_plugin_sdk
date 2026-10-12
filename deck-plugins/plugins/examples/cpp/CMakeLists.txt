@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.16)
+project(echo_plugin LANGUAGES CXX)
+add_executable(echo-plugin main.cpp)
+target_include_directories(echo-plugin PRIVATE ../../../sdk/cpp ../../../sdk/cpp/vendor)
+target_compile_features(echo-plugin PRIVATE cxx_std_17)

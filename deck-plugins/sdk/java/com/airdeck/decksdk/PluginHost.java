@@ -1,0 +1,28 @@
+package com.airdeck.decksdk;
+import com.google.gson.*;
+import com.airdeck.capabilities.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+/** API v2: read loop stays independent of invocations and capability requests. */
+public final class PluginHost implements CapabilityTransport {
+  public static final class CapabilityException extends RuntimeException { public final String code; CapabilityException(String code,String message){super(message);this.code=code;} }
+  public interface Initializer { void init(PluginHost host); }
+  private final Map<String,CompletableFuture<JsonObject>> pending=new ConcurrentHashMap<>();
+  private final Map<String,Consumer<JsonObject>> subscriptions=new ConcurrentHashMap<>();
+  private final Map<String,BiFunction<String,JsonObject,JsonObject>> providers=new ConcurrentHashMap<>();
+  private final ExecutorService workers=Executors.newFixedThreadPool(16);
+  private final Gson json=new Gson();
+  private synchronized void send(JsonObject q){System.out.println(json.toJson(q));System.out.flush();}
+  private JsonObject exchange(JsonObject q){String id=q.has("ipc_id")?q.get("ipc_id").getAsString():UUID.randomUUID().toString();q.addProperty("ipc_id",id);CompletableFuture<JsonObject> f=new CompletableFuture<>();pending.put(id,f);try{send(q);return f.get(4,TimeUnit.SECONDS);}catch(Exception e){JsonObject cancel=new JsonObject();cancel.addProperty("op","capability.cancel");cancel.addProperty("action",id);send(cancel);Throwable cause=e instanceof ExecutionException?e.getCause():e;if(cause instanceof CapabilityException)throw (CapabilityException)cause;throw new CapabilityException(e instanceof TimeoutException?"timeout":"provider_failed",e.getMessage());}finally{pending.remove(id);}}
+  public JsonObject call(String cap,String method,JsonObject payload){JsonObject q=new JsonObject();q.addProperty("op","capability.call");q.addProperty("capability",cap);q.addProperty("action",method);q.add("payload",payload);JsonObject r=exchange(q);return r.has("value")?r.getAsJsonObject("value"):new JsonObject();}
+  public Runnable subscribe(String cap,String topic,Consumer<JsonObject> callback){String id=UUID.randomUUID().toString();subscriptions.put(id,callback);JsonObject q=new JsonObject();q.addProperty("op","capability.subscribe");q.addProperty("ipc_id",id);q.addProperty("capability",cap);q.addProperty("topic",topic);Runnable stop=()->{subscriptions.remove(id);JsonObject u=new JsonObject();u.addProperty("op","capability.unsubscribe");u.addProperty("action",id);send(u);};try{exchange(q);}catch(RuntimeException e){stop.run();throw e;}return stop;}
+  public void provide(String cap,BiFunction<String,JsonObject,JsonObject> dispatch){providers.put(cap,dispatch);}
+  public void publish(String cap,String topic,JsonObject value){JsonObject q=new JsonObject();q.addProperty("op","capability.publish");q.addProperty("capability",cap);q.addProperty("topic",topic);q.add("value",value);exchange(q);}
+  private static String field(JsonObject q,String key){return q.has(key)?q.get(key).getAsString():"";}
+  private void handle(DeckPlugin plugin,JsonObject q){JsonObject r=new JsonObject();r.addProperty("op","ok");r.addProperty("ipc_id",field(q,"ipc_id"));try{switch(field(q,"op")){case "catalog":r.add("buttons",json.toJsonTree(plugin.catalog()));break;case "invoke":plugin.invoke(field(q,"type"),field(q,"action"),q.has("body")?q.get("body").toString():"{}",q.has("payload")?q.get("payload").toString():"{}");break;case "capability.invoke":BiFunction<String,JsonObject,JsonObject> p=providers.get(field(q,"capability"));if(p==null)throw new CapabilityException("capability_unavailable","Provider not registered");r.add("value",p.apply(field(q,"action"),q.getAsJsonObject("payload")));break;case "poll":plugin.poll();break;default:throw new CapabilityException("invalid_arguments","Unknown operation");}}catch(Exception e){r.addProperty("op","error");r.addProperty("error",e.getMessage());r.addProperty("code",e instanceof CapabilityException?((CapabilityException)e).code:"provider_failed");}if(!q.has("ack")||q.get("ack").getAsBoolean())send(r);}
+  public static void run(DeckPlugin plugin)throws Exception{new PluginHost().loop(plugin);}
+  private void loop(DeckPlugin plugin)throws Exception{CountDownLatch ready=new CountDownLatch(1);workers.submit(()->{try{if(plugin instanceof Initializer)((Initializer)plugin).init(this);}finally{ready.countDown();}});try(BufferedReader input=new BufferedReader(new InputStreamReader(System.in,StandardCharsets.UTF_8))){String line;while((line=input.readLine())!=null){JsonObject q;try{q=JsonParser.parseString(line).getAsJsonObject();}catch(RuntimeException e){continue;}if(!q.has("op")||!q.get("op").isJsonPrimitive()||!q.getAsJsonPrimitive("op").isString()||(q.has("ipc_id")&&(!q.get("ipc_id").isJsonPrimitive()||!q.getAsJsonPrimitive("ipc_id").isString())))continue;String op=field(q,"op"),id=field(q,"ipc_id");if(op.equals("capability.result")){CompletableFuture<JsonObject> f=pending.get(id);if(f!=null){if(q.has("error")&&!field(q,"error").isEmpty())f.completeExceptionally(new CapabilityException(field(q,"code"),field(q,"error")));else f.complete(q);}}else if(op.equals("capability.state")){Consumer<JsonObject> cb=subscriptions.get(id);if(cb!=null)workers.submit(()->cb.accept(q.getAsJsonObject("value").getAsJsonObject("value")));}else workers.submit(()->{try{ready.await();handle(plugin,q);}catch(InterruptedException e){Thread.currentThread().interrupt();}});}}finally{pending.values().forEach(f->f.completeExceptionally(new CapabilityException("provider_failed","Host disconnected")));subscriptions.clear();workers.shutdownNow();}}
+}

@@ -1,0 +1,82 @@
+{
+  "id": "core.apps",
+  "version": "1.1.0",
+  "permissions": {
+    "core.apps.launch": "Launch applications",
+    "core.apps.read": "Read installed application names and launch targets"
+  },
+  "types": {
+    "Empty": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "Launch": {
+      "type": "object",
+      "properties": {
+        "target": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "Application": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "Applications": {
+      "type": "object",
+      "properties": {
+        "apps": {
+          "type": "array",
+          "items": {
+            "$ref": "Application"
+          },
+          "maxItems": 512
+        }
+      },
+      "required": [
+        "apps"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "methods": {
+    "launch": {
+      "request": "Launch",
+      "result": "Empty",
+      "permissions": [
+        "core.apps.launch"
+      ]
+    },
+    "list": {
+      "request": "Empty",
+      "result": "Applications",
+      "permissions": [
+        "core.apps.read"
+      ]
+    }
+  },
+  "topics": {}
+}

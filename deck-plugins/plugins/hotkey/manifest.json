@@ -1,0 +1,22 @@
+{
+  "id": "com.airdeck.hotkey",
+  "name": "Hotkey",
+  "version": "1.0.1",
+  "mode": "targeted",
+  "builtin": true,
+  "ack": true,
+  "entrypoint": "./hotkey-plugin",
+  "types": [
+    "plugin.command"
+  ],
+  "api_version": 2,
+  "permissions": [
+    "core.keyboard.hotkey"
+  ],
+  "uses": [
+    {
+      "id": "core.keyboard",
+      "min_version": "1.0.0"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+**/__pycache__/
+**/*.pyc
+deck-plugins/dist/
+deck-plugins/**/*-plugin
+deck-plugins/**/*-plugin.exe
+!deck-plugins/plugins/examples/java/echo-plugin
+!deck-plugins/plugins/examples/java/echo-plugin.bat
+deck-plugins/**/*.deckPlugin
+deck-plugins/**/*.jar
+deck-plugins/**/*.class
+deck-plugins/plugins/examples/cpp/build/
+deck-plugins/plugins/examples/capability-consumer/counter-reader
+deck-plugins/plugins/examples/capability-consumer/counter-reader.exe
+.DS_Store
+
+# Proprietary implementations must never be added here.
+private-plugins/
+deck-plugins/plugins/obs/
