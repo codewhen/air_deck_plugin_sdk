@@ -1,28 +1,34 @@
 ---
-title: "Build an AirDeck plugin"
-description: "Turn a desktop action into a button on your phone."
+title: "AirDeck plugin developer guide"
+description: "Build your first plugin, then explore the complete developer reference."
 ---
 
-AirDeck plugins run on **AirDeck Helper**, the computer-side app. They expose actions that people add to their phone's Stream Deck layout. You can create one in Go, Python, Java or C++.
+A plugin gives AirDeck a new desktop action that a person can put on their phone's deck. Your code runs on AirDeck Helper, on the computer. The public SDK connects that code to the helper and handles communication for you.
 
-The public SDK handles the API v2 JSON protocol. You implement a catalog of buttons and the action behind each button. For supported desktop operations, call the helper's typed, permission-controlled capabilities.
+Choose the section that matches what you need now.
 
-## Start with a working plugin
+## Get started: build something that works
 
-1. [Set up the SDK](./getting-started).
-2. Follow the [Go](./go), [Python](./python), [Java](./java) or [C++](./cpp) tutorial.
-3. [Package, install and test](./distribution) your plugin on AirDeck Helper.
+[Start the guided tutorial](./get-started/index) if you are creating your first plugin. You will make a new project, understand its files, build a package, test it without the app, and install it on the helper. Choose Go, Python, Java or C++.
 
-All four tutorials start with Echo Beep: a small action that plays a sound when tapped. A verified package should work after extraction into a fresh directory, without the SDK checkout beside it.
+The starter has one **Say hello** button. When the button runs, it writes `Hello from AirDeck!` to the plugin's diagnostic output. This gives you a small, predictable project to extend.
 
-## Extend the desktop
+Follow the steps in order. Each page explains what a command does and what success looks like. You do not need to understand the full message protocol before starting.
 
-Read the [manifest reference](./manifest) for identity and permissions. Use [core capabilities](./capabilities) for media, keyboard, pointer and app operations. Advanced plugins can [provide capabilities](./providers) for other plugins.
+## Documentation: look up how things work
 
-Plugins are executable software, not a sandbox. Capability permissions control access through AirDeck's broker; they do not restrict every OS operation an executable could perform. Install packages only from authors you trust.
+[Open the developer reference](./reference/index) when you need exact information about manifests, button catalogs, SDK methods, permission-controlled capabilities, schemas, updates or distribution.
 
-## Own your implementation
+The reference is organized by topic. It includes complete method/type tables for the shipped core capabilities and explains the difference between an SDK, a plugin and a packaged release.
 
-The SDK is Apache-2.0 licensed. Your plugin can be open source or closed source, and distributed free or paid. SDK and third-party notices still apply. AirDeck's privately maintained plugins, including OBS, are not part of this public repository.
+## Source, price and ownership
 
-This guide covers plugin API **v2**. Dedicated custom mobile plugin screens are not supported yet. Each tutorial notes runtime requirements and platform differences.
+The SDK and this documentation are public in [codewhen/air_deck_plugin_sdk](https://github.com/codewhen/air_deck_plugin_sdk). Community members can contribute there. The SDK uses Apache-2.0; third-party files retain their own licenses.
+
+Your plugin implementation can be open source or closed source, and its binary can be free or paid. Preserve the notices for dependencies you include. AirDeck-owned private plugins such as OBS are maintained separately from the public SDK.
+
+## What this guide covers
+
+This guide covers executable plugin **API v2** for AirDeck Helper on macOS and Windows. It explains deck actions and host capabilities. Dedicated custom mobile plugin screens are not part of the current public SDK.
+
+The examples and starter packaging checks have been executed on macOS. Windows-specific instructions and launchers are included, but an actual Windows helper run is required before advertising Windows support.

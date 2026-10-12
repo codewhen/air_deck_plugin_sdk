@@ -34,3 +34,5 @@ jobs:
         run: python3 tools/build_examples.py all --gson /tmp/gson.jar
       - name: Verify extracted tutorial packages
         run: python3 tools/test_packaged_examples.py deck-plugins/dist/examples/*/*.deckPlugin
+      - name: Generate and verify all-language starters
+        run: GSON_JAR=/tmp/gson.jar python3 tools/test_starters.py

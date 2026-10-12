@@ -1,0 +1,44 @@
+---
+title: "Versions and upgrades"
+description: "Keep plugin, API and capability compatibility separate."
+---
+
+## Three versions to understand
+
+| Version | What it describes |
+| --- | --- |
+| Plugin `version` | Your installed product release |
+| `api_version` | The helper/plugin executable protocol; this guide uses `2` |
+| Capability schema `version` | A specific typed service contract, such as `core.media` version `1.0.0` |
+
+Do not use one value as a substitute for another. Updating your plugin's release number does not automatically update the protocol or make an incompatible capability usable.
+
+## Compatible ranges
+
+`min_version` is inclusive. `max_version` is exclusive. A range from `1.0.0` to `2.0.0` accepts compatible versions at or above 1.0.0 and below 2.0.0.
+
+Use `dependencies` for a provider plugin version and `uses` for a capability version. If the capability comes from a plugin, identify its `provider` as well. An installed provider can satisfy its product dependency while still exposing an incompatible capability contract.
+
+## Stable saved actions
+
+Keep the plugin ID stable across releases. Keep a button ID/action stable when it still means the same operation. Rename display titles separately. If an operation is removed or incompatible, provide a clear migration and useful failure for saved layouts that still refer to it.
+
+## Permission changes
+
+A release that adds required permissions needs fresh approval. Do not silently treat an old grant as authorization for a new operation. Test update behavior with approved, revoked and incomplete grants.
+
+## Contract compatibility checks
+
+The generator can compare schemas against a released baseline:
+
+```sh
+python3 capabilities/tools/generate.py --baseline /path/to/released/schemas
+```
+
+A baseline is a reviewed copy of the previously released schema set. The check rejects breaking changes that require a major version increase. Generated code is derived output; change the schema and regenerate rather than editing generated clients manually.
+
+## An upgrade checklist
+
+Test new plugin with the oldest helper/capability version you declare, upgraded helper/provider with an existing consumer, existing saved layouts, user config, permission reapproval and clean reinstall. Record which actual platforms/releases were executed.
+
+Pin the SDK version used to produce the release. The website also pins a reviewed SDK commit for documentation, so a merged SDK change appears on the site only after adoption and deployment.

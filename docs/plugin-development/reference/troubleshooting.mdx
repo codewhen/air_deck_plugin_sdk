@@ -3,6 +3,8 @@ title: "Troubleshooting"
 description: "Find missing runtimes, permissions and protocol problems."
 ---
 
+Start with the first failing boundary: project creation, build, package start, catalog, invocation, capability call or real-device UI. A symptom late in the flow may come from an earlier packaging error.
+
 ## The plugin cannot start
 
 Check the manifest entrypoint and archive contents. A native binary must match the computer's OS/architecture. Unix scripts need an executable mode and a valid shebang. Python/Java require their runtime on PATH as seen by the helper process; restart the helper after changing PATH.
@@ -32,3 +34,25 @@ Keep button IDs and plugin ID stable and make them match the manifest and catalo
 ## Need help?
 
 Open an issue in the public SDK repository with helper/SDK versions, OS/architecture, a minimal reproduction and redacted stderr logs. Never include credentials or personal configuration values.
+
+## Starter tool errors
+
+An existing destination error is an overwrite safeguard. Choose a new project name or edit the existing files; do not repeatedly run create expecting an update.
+
+A missing `airdeck.build.json` means the project is not a generated starter layout. Use the generic packer for a prepared runtime directory, or create a starter and adapt it. The helper does not require this local build config.
+
+A Java build needs a real Gson file. An empty or relative path from a different working directory is not a dependency. A native compiler error should be fixed before attempting package installation.
+
+## Works in a terminal but not in the helper
+
+Compare working directory, executable permissions, PATH and runtime versions. GUI applications can inherit a different environment from your terminal. Absolute development paths and global import/classpath settings can hide missing package resources.
+
+The isolated tester deliberately changes the directory and clears import/classpath overrides. Use it before debugging the helper UI. If it passes but the real action fails, inspect permissions, compatibility and external application state.
+
+## A timeout after a side effect
+
+Do not blindly repeat an operation just because the caller timed out. The external action may already have happened. Inspect observed state if available and design idempotent commands where practical.
+
+## Preparing a useful issue
+
+Include a minimal reproducible project/action, source/SDK/package/helper versions, target OS/architecture, the exact command/UI step and redacted diagnostics. Say whether the failure happened in an isolated test or the actual helper. Keep keys, passwords and personal config out of the report.

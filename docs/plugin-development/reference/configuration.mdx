@@ -1,0 +1,43 @@
+---
+title: "Configuration and resources"
+description: "Ship useful defaults and keep user settings separate from code and secrets."
+---
+
+## Declare an editable config file
+
+A plugin can name a relative resource in its manifest:
+
+```json
+{
+  "config": "./config.json",
+  "files": ["assets/help.txt"]
+}
+```
+
+This is a manifest fragment; retain identity, entrypoint, version and permissions. The packer includes the config resource and declared files. The helper offers config editing for plugins that declare it.
+
+## Defaults versus user data
+
+Ship a valid example/default configuration. Use empty credentials and safe values that make sense to a new user. Never package the config currently used on your personal machine if it contains credentials, device details or private paths.
+
+Validate configuration when loading it. Return a diagnostic that says which field is invalid and how to fix it. Do not log the entire config when some fields are secret.
+
+If a config can change while the process runs, decide whether you reload it per action or require a restart. Document that behavior. Do not promise live reload unless the plugin actually implements it.
+
+## Find resources relative to the installation
+
+The helper starts the plugin from its installed directory. Use that directory or an entrypoint-relative path to locate packaged resources. Do not refer to `/Users/...`, an SDK checkout, or a build machine's absolute dependency path.
+
+A Java/Python launcher should locate runtime files beside itself. Native executables may need an executable-relative path if they change the working directory before reading a resource.
+
+## Keep ownership and upgrades clear
+
+Persistent settings belong to the user's installed plugin/profile, not a compiled-in source constant. When introducing new config fields, preserve compatible existing settings or provide a documented migration.
+
+Test installation with defaults, malformed config, missing resources and an existing user config from the prior release. Do not overwrite user choices just because a new package ships a new example file; verify the helper's actual upgrade behavior and design your migration accordingly.
+
+## Credentials and permissions
+
+A broker permission grant is separate from a password for an external service. The user may approve a capability but still need to supply credentials to an external application. Explain both requirements.
+
+Keep credentials out of documentation screenshots, source examples, issue reports and binary packages. If you expose an external service, use its supported authentication and disclose the connection/setup requirements in your plugin guide.

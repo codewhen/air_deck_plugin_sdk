@@ -7,3 +7,5 @@ Keep protocol and permission changes backward compatible within a major version.
 Keep diagnostics on stderr and protocol messages on stdout. Do not commit credentials, personal OBS configuration, built executables or plugin archives. Contributions are accepted under the project's Apache-2.0 license.
 
 Developer documentation lives in `docs/plugin-development`. Use title/description frontmatter, update `meta.json` for new pages, and run `python3 tools/check_docs.py`. The website renders a pinned commit of this content.
+
+Use `get-started` for sequential tutorials and `reference` for detailed API/topic explanations. Starter source templates live under `tools/templates`; keep their complete code excerpts in the tutorials consistent. Core references come from `tools/generate_reference_docs.py`.

@@ -1,19 +1,8 @@
 {
-  "title": "Plugin development",
+  "title": "AirDeck developer guide",
   "pages": [
     "index",
-    "getting-started",
-    "go",
-    "python",
-    "java",
-    "cpp",
-    "manifest",
-    "protocol",
-    "capabilities",
-    "providers",
-    "distribution",
-    "testing",
-    "troubleshooting",
-    "contributing"
+    "get-started",
+    "reference"
   ]
 }

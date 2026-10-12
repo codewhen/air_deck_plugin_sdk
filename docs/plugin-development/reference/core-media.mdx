@@ -1,0 +1,324 @@
+---
+title: "Media capability"
+description: "Playback, track metadata, system volume and mute."
+---
+
+This page is generated from `core.media.json`. Contract version: **1.0.0**. Edit the public schema and run `python3 tools/generate_reference_docs.py` to update the tables and payload shapes.
+
+## Before calling this capability
+
+Declare the permissions needed by your selected methods/topics and a compatible `uses` range for `core.media`. Construct the generated client from the SDK host during initialization. Handle denied permissions, incompatible contracts and operational failures.
+
+Playback/track availability depends on the operating system and media application. Inspect `available`; an unknown or unavailable snapshot is not a playing/paused guarantee. A successful next/previous command does not prove the prepared player has another track.
+
+Volume and mute are separate values. Use `setMute` for mute state rather than assuming a zero volume is equivalent. Respect the numeric ranges below. Subscribe to playback/track/volume topics when a UI needs current state.
+
+## Permission IDs
+
+| ID | User-facing purpose |
+| --- | --- |
+| `core.media.playback.read` | Read playback status |
+| `core.media.playback.control` | Control media playback |
+| `core.media.track.read` | Read track title, artist and album |
+| `core.media.volume.read` | Read system volume and mute status |
+| `core.media.volume.control` | Change system volume and mute |
+
+## Methods
+
+The method names below are the contract/wire names. Generated clients expose language-appropriate names; use those clients rather than manually inventing JSON fields.
+
+### `getPlayback`
+
+Request: `Empty`. Result: `Playback`.
+
+Required permissions: `core.media.playback.read`.
+
+Example request payload shape:
+
+```json
+{}
+```
+
+Read the `Playback` type below for the returned fields.
+
+### `getTrack`
+
+Request: `Empty`. Result: `Track`.
+
+Required permissions: `core.media.track.read`.
+
+Example request payload shape:
+
+```json
+{}
+```
+
+Read the `Track` type below for the returned fields.
+
+### `getVolume`
+
+Request: `Empty`. Result: `Volume`.
+
+Required permissions: `core.media.volume.read`.
+
+Example request payload shape:
+
+```json
+{}
+```
+
+Read the `Volume` type below for the returned fields.
+
+### `togglePlayback`
+
+Request: `Empty`. Result: `Empty`.
+
+Required permissions: `core.media.playback.control`.
+
+Example request payload shape:
+
+```json
+{}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+### `play`
+
+Request: `Empty`. Result: `Empty`.
+
+Required permissions: `core.media.playback.control`.
+
+Example request payload shape:
+
+```json
+{}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+### `pause`
+
+Request: `Empty`. Result: `Empty`.
+
+Required permissions: `core.media.playback.control`.
+
+Example request payload shape:
+
+```json
+{}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+### `next`
+
+Request: `Empty`. Result: `Empty`.
+
+Required permissions: `core.media.playback.control`.
+
+Example request payload shape:
+
+```json
+{}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+### `previous`
+
+Request: `Empty`. Result: `Empty`.
+
+Required permissions: `core.media.playback.control`.
+
+Example request payload shape:
+
+```json
+{}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+### `setVolume`
+
+Request: `SetVolume`. Result: `Empty`.
+
+Required permissions: `core.media.volume.control`.
+
+Example request payload shape:
+
+```json
+{
+  "level": 0.5
+}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+### `adjustVolume`
+
+Request: `AdjustVolume`. Result: `Empty`.
+
+Required permissions: `core.media.volume.control`.
+
+Example request payload shape:
+
+```json
+{
+  "delta": 0.5
+}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+### `setMute`
+
+Request: `Mute`. Result: `Empty`.
+
+Required permissions: `core.media.volume.control`.
+
+Example request payload shape:
+
+```json
+{
+  "muted": false
+}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+## Topics
+
+### `playback`
+
+Value type: `Playback`. Required permissions: `core.media.playback.read`.
+
+Subscribe with the generated client. Store and eventually call the unsubscribe function. Treat the value as observed state rather than acknowledgement of a particular command.
+
+### `track`
+
+Value type: `Track`. Required permissions: `core.media.track.read`.
+
+Subscribe with the generated client. Store and eventually call the unsubscribe function. Treat the value as observed state rather than acknowledgement of a particular command.
+
+### `volume`
+
+Value type: `Volume`. Required permissions: `core.media.volume.read`.
+
+Subscribe with the generated client. Store and eventually call the unsubscribe function. Treat the value as observed state rather than acknowledgement of a particular command.
+
+## Types
+
+These objects are closed: their schema does not allow additional properties. Every listed property is required in this version.
+
+### `Empty`
+
+An empty object: `{}`.
+
+### `Playback`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `status` | `string` | one of `playing`, `paused`, `stopped`, `unknown` |
+| `available` | `boolean` | No additional schema constraint |
+
+Example value shape:
+
+```json
+{
+  "status": "playing",
+  "available": false
+}
+```
+
+### `Track`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `title` | `string` | No additional schema constraint |
+| `artist` | `string` | No additional schema constraint |
+| `album` | `string` | No additional schema constraint |
+| `app` | `string` | No additional schema constraint |
+| `available` | `boolean` | No additional schema constraint |
+
+Example value shape:
+
+```json
+{
+  "title": "example",
+  "artist": "example",
+  "album": "example",
+  "app": "example",
+  "available": false
+}
+```
+
+### `Volume`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `level` | `number` | minimum=0; maximum=1 |
+| `muted` | `boolean` | No additional schema constraint |
+| `available` | `boolean` | No additional schema constraint |
+
+Example value shape:
+
+```json
+{
+  "level": 0.5,
+  "muted": false,
+  "available": false
+}
+```
+
+### `SetVolume`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `level` | `number` | minimum=0; maximum=1 |
+
+Example value shape:
+
+```json
+{
+  "level": 0.5
+}
+```
+
+### `AdjustVolume`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `delta` | `number` | minimum=-1; maximum=1 |
+
+Example value shape:
+
+```json
+{
+  "delta": 0.5
+}
+```
+
+### `Mute`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `muted` | `boolean` | No additional schema constraint |
+
+Example value shape:
+
+```json
+{
+  "muted": false
+}
+```
+
+## Permission groups
+
+- `core.media.read`: `core.media.playback.read`, `core.media.track.read`, `core.media.volume.read`.
+- `core.media.volume`: `core.media.volume.read`, `core.media.volume.control`.
+- `core.media.all`: `core.media.playback.read`, `core.media.playback.control`, `core.media.track.read`, `core.media.volume.read`, `core.media.volume.control`.
+
+## Verification checklist
+
+Test a valid operation, invalid input, missing/revoked permission, unsupported OS/application behavior and incompatible contract version. For topics, test initial/current state, later updates and unsubscribe. A packaged protocol test alone cannot verify this native operation.

@@ -1,0 +1,103 @@
+---
+title: "Your first Java plugin"
+description: "Understand a complete Java starter, then build and test your own package."
+---
+
+## Before you begin
+
+Complete [Set up](./setup), then [Create a starter](./create) using `java`. This chapter assumes your project is called `my-first-plugin` and its ID is `com.yourname.hello`. Substitute your chosen names if they differ.
+
+Open `deck-plugins/plugins/my-first-plugin/Plugin.java` in your editor. Here is the complete generated implementation:
+
+```java
+package com.example.starter;
+
+import com.airdeck.decksdk.Button;
+import com.airdeck.decksdk.DeckPlugin;
+import com.airdeck.decksdk.PluginHost;
+import java.util.List;
+
+public final class Plugin implements DeckPlugin {
+    private static final String PLUGIN_ID = "com.yourname.hello";
+
+    @Override
+    public List<Button> catalog() {
+        Button button = new Button("hello.say", "Say hello", "hello", PLUGIN_ID);
+        button.icon_key = "plugins";
+        button.editor_tap = true;
+        return List.of(button);
+    }
+
+    @Override
+    public void invoke(String type, String action, String bodyJson, String payloadJson) {
+        if (!"hello".equals(action)) {
+            throw new IllegalArgumentException("unknown action: " + action);
+        }
+        System.err.println("Hello from AirDeck!");
+    }
+
+    public static void main(String[] args) throws Exception {
+        PluginHost.run(new Plugin());
+    }
+}
+```
+
+## How the Java code works
+
+`Plugin` implements `DeckPlugin`. `catalog` constructs a `Button`, enables its tap editor option and returns a list. The helper serializes it into the catalog shown to the phone.
+
+`invoke` receives the action and JSON strings for `bodyJson` and `payloadJson`. The starter checks the action name, then writes to `System.err`. An exception is converted into an error response by `PluginHost`.
+
+`PluginHost.run` owns protocol parsing and response correlation. Gson provides JSON encoding. The builder compiles your source together with the SDK classes and includes a Gson JAR in the package's runtime classpath.
+
+The Java package name `com.example.starter` is an internal class namespace. It is separate from the installed plugin ID `com.yourname.hello`. Keep `airdeck.build.json`'s `java_main` consistent if you rename the Java package or class.
+
+Users need Java 17+ on PATH. The JDK tools `javac` and `jar` are needed only when building.
+
+## Follow a button press through the code
+
+1. The helper asks for a catalog. Your catalog function returns **Say hello** with action `hello`.
+2. The phone shows that action in the plugin library after installation.
+3. When the saved button is tapped, the helper invokes `hello` on your plugin.
+4. Your handler writes `Hello from AirDeck!` to stderr.
+5. The SDK returns the correlated success response. An unknown action produces a correlated error instead.
+
+The installed plugin ID, catalog button ID and action string have different jobs. Read [buttons and actions](../reference/catalog) if you want a more detailed explanation.
+
+## Build the package
+
+From the SDK root:
+
+```sh
+python3 tools/plugin.py build my-first-plugin --gson /absolute/path/to/gson.jar
+```
+
+The builder reads `airdeck.build.json`, compiles or collects the runtime files, and creates a package. A successful command prints the path to install:
+
+```text
+deck-plugins/dist/starters/my-first-plugin/java/com.yourname.hello.deckPlugin
+```
+
+The package is rebuilt from the current source. Do not edit the executable or ZIP archive to change the plugin's behavior; edit your source and build again.
+
+## Test without the helper
+
+```sh
+python3 tools/plugin.py test my-first-plugin
+```
+
+The test extracts the package into a fresh temporary directory, clears `PYTHONPATH` and `CLASSPATH`, starts the entrypoint and checks three requests: catalog, a successful `hello` invocation, and an unknown action. You should see `PASS isolated package`.
+
+This establishes that the installed package can find its own runtime files. It does not certify phone UI behavior or platform-specific OS actions. Continue to [Build and install](./install) for the full journey.
+
+## Make your first change
+
+Change the diagnostic text to `Hello from my plugin!`, then run the build and test commands again. Next, change the catalog title from `Say hello` to a title meaningful to your action. Keep the action string consistent with the condition in your handler.
+
+After a successful change, add a second button with a new button ID and action string. Handle that action explicitly. Add permissions only when you introduce a broker capability call; the [core capability guide](../reference/capabilities) shows how.
+
+## Platform notes
+
+On Windows use your `python` command in place of `python3`. Build native binaries on the OS/architecture you intend to support. Python/Java Windows packages use a native launcher built with Go; users still need the appropriate runtime.
+
+The generated starters and isolated-package checks have been executed on macOS. The Windows launcher can be cross-compiled, but real Windows helper execution remains a separate verification step.

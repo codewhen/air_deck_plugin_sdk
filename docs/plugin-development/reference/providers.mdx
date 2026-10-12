@@ -3,6 +3,8 @@ title: "Provide capabilities"
 description: "Expose a namespaced service that another plugin can use."
 ---
 
+A provider plugin exposes a service that other plugins can use. A consumer depends on its identity/version, requests permission and uses a compatible capability contract. Keep the provider implementation and consumer's assumptions versioned separately.
+
 The SDK includes a typed Counter Provider and Counter Reader. Start with these when one plugin should offer a reusable service to another.
 
 ## Provider contract
@@ -53,3 +55,25 @@ bash scripts/build_all.sh
 ```
 
 Install `dist/com.example.counter.deckPlugin`, then `dist/com.example.counter-button.deckPlugin`. Tap Read Counter and inspect the helper logs for `Counter: 42`. The initial published state and permission/compatibility checks are also covered by SDK and helper tests.
+
+## Contract anatomy
+
+Each schema defines a capability ID, semantic version, permission descriptions, closed object types, methods and topics. A method names a request type, result type and required permissions. A topic names its value type and read permissions.
+
+For `com.example.counter`, the capability ID starts with `com.example.counter.`. A consumer permission such as `com.example.counter.counter.read` belongs to that declared capability. Do not register a provider using a core namespace or another plugin's identity.
+
+## Provider responsibilities
+
+Register generated dispatch during initialization. Validate operation input and return useful failures. Publish topic values that match the declared type. If the service depends on an external system, distinguish unavailable state from a successful result.
+
+Shared state can be touched by both method calls and subscriptions. Use synchronization and keep dispatch work bounded. Treat topic values as snapshots of current state, not a substitute for acknowledging a specific command.
+
+## Consumer responsibilities
+
+Declare the provider plugin in `dependencies` and its capability/provider in `uses`. Request the method/topic permissions you need. Construct the generated client, handle denied/unavailable/incompatible outcomes, and release subscriptions.
+
+For a local test, install the provider before the consumer. Automatic marketplace resolution requires a configured, published package; a local schema file does not itself publish a dependency to the marketplace.
+
+## Evolving the contract
+
+Do not silently change field meaning or remove methods within a supposedly compatible version range. Use the public generator's baseline compatibility check and increase the major version for breaking contracts. Test an old consumer against the new provider and a new consumer against an old provider before claiming compatibility.

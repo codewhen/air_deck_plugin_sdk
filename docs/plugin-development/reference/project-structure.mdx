@@ -1,0 +1,47 @@
+---
+title: "Project structure"
+description: "Separate development files, SDK dependencies and the installed runtime."
+---
+
+## A development project
+
+The starter tool creates a project inside the public SDK's `deck-plugins/plugins` directory. This is a convenient local development layout, not a rule that every plugin must live in the SDK repository forever.
+
+`manifest.json` describes the installation contract. The language source implements behavior. `airdeck.build.json` tells the local starter tooling how to compile/package it. The README explains your project's commands.
+
+## Development configuration
+
+A Java starter uses this local configuration:
+
+```json
+{
+  "language": "java",
+  "action": "hello",
+  "binary_name": "plugin",
+  "java_main": "com.example.starter.Plugin"
+}
+```
+
+Python uses `python_entry: "plugin.py"`; Go and C++ need their language and binary name. `action` tells the isolated starter tester which successful action to exercise. Change it when you replace `hello` with your own action.
+
+These fields belong to the tooling, not plugin API v2. The helper does not read `airdeck.build.json`, and it is not copied into a runtime package.
+
+## What is installed
+
+A runtime package contains a manifest, an entrypoint, declared resources and required runtime dependencies. It need not contain your source project or development configuration.
+
+Go/C++ packages normally contain native executables. Python packages contain executable Python code and local SDK/runtime files; Python source is inherently readable unless you choose a separate compiled distribution strategy. Java packages contain classes/JARs and their runtime dependency/launcher.
+
+Keep private source out of public Git repositories. A binary's price is independent of whether its implementation is published. Also recognize that distributed binaries can be inspected; a private repository is source-access control, not an anti-reverse-engineering guarantee.
+
+## Moving to your own repository
+
+For Go, create your own module and depend on a reviewed version/commit of the public SDK modules. The SDK includes separate `deck-plugins` and `capabilities` Go modules. During local development, module replacements can point to reviewed checkouts; releases should pin a reproducible SDK version.
+
+For Python, install or package the SDK with your implementation so runtime imports do not depend on a developer's absolute path. For Java, compile SDK classes or depend on a versioned SDK artifact and include Gson. For C++, use the SDK and generated capability headers with the vendored JSON include path.
+
+The starter builder assumes Go projects are inside its SDK module. A separate repository needs its own build configuration, then can still use `capabilities/tools/pack_plugin.py` on a prepared runtime directory.
+
+## Files to keep out of releases
+
+Exclude private credentials, upload/signing keys, personal config, caches, test outputs and obsolete platform binaries. Include only the runtime files your manifest needs and appropriate notices. The packer is explicit; it does not find every transitive dependency automatically.

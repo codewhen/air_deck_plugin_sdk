@@ -1,0 +1,40 @@
+---
+title: "Turn the starter into a useful plugin"
+description: "Add an action, declare its needs and prepare a reliable release."
+---
+
+## Choose one useful action
+
+Pick a small action you can verify. Examples include controlling media through `core.media`, running a defined hotkey through `core.keyboard`, or launching an application selected from `core.apps`.
+
+Start with one action and a clear title. Avoid making a first release depend on a large collection of unrelated operations. The Hello starter gives you a working catalog, handler, package and test path already.
+
+## Replace the hello handler
+
+Keep the catalog and handler synchronized. Add a new action string, decode the parameters you need, validate them and return a useful failure when the operation cannot complete.
+
+Do not use a success reply to hide a denied permission, missing provider or invalid argument. If a saved action refers to a removed operation, return a clear error and document the migration.
+
+## Call a host capability
+
+Read [core capabilities](../reference/capabilities). Create a typed client from the host during SDK initialization, declare the required permission in the manifest, and declare a compatible capability version in `uses`.
+
+Use generated clients instead of rebuilding JSON payloads by hand. The [media](../reference/core-media), [keyboard](../reference/core-keyboard), [pointer](../reference/core-pointer) and [applications](../reference/core-apps) references list every shipped method, topic and type.
+
+## Add state only when needed
+
+If a button reflects playback or volume, subscribe to the appropriate state topic. Release subscriptions when you no longer need them. Protect shared state from concurrent handlers and callbacks.
+
+A toggle editor flag does not implement toggle behavior. Define what on/off means, implement it, and decide how the button reflects actual external state rather than just remembering the last tap.
+
+## Test the action's failures
+
+Test unavailable applications/players, rejected permissions, invalid input, dependency version mismatches, restart and upgrade. Add deterministic unit tests for your own logic, then verify the real helper/phone journey on each supported platform.
+
+Use the [testing reference](../reference/testing) and [packaging guide](../reference/distribution) before sharing a binary release.
+
+## Keep the public/private boundary clear
+
+Your implementation may live in its own public or private repository. The SDK dependency remains public; preserve its license notices. Free distribution does not require publishing your implementation's source. Paid distribution does not require changing the SDK.
+
+For community improvements to the SDK or these guides, follow [Contributing](../reference/contributing).

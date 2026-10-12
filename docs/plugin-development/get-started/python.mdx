@@ -1,0 +1,98 @@
+---
+title: "Your first Python plugin"
+description: "Understand a complete Python starter, then build and test your own package."
+---
+
+## Before you begin
+
+Complete [Set up](./setup), then [Create a starter](./create) using `python`. This chapter assumes your project is called `my-first-plugin` and its ID is `com.yourname.hello`. Substitute your chosen names if they differ.
+
+Open `deck-plugins/plugins/my-first-plugin/plugin.py` in your editor. Here is the complete generated implementation:
+
+```python
+#!/usr/bin/env python3
+import sys
+from pathlib import Path
+
+# Installed packages use the local SDK; source development uses the checkout.
+local_sdk = Path(__file__).resolve().parent / "sdk"
+sdk = local_sdk if local_sdk.is_dir() else Path(__file__).resolve().parents[2] / "sdk" / "python"
+sys.path.insert(0, str(sdk))
+from decksdk import DeckPlugin, run
+
+PLUGIN_ID = "com.yourname.hello"
+
+class Plugin(DeckPlugin):
+    def catalog(self):
+        return [{"id": "hello.say", "title": "Say hello", "action": "hello",
+                 "plugin_id": PLUGIN_ID, "icon_key": "plugins", "columns": 1,
+                 "rows": 1, "editor": {"tap": True}}]
+
+    def invoke(self, typ, action, body, payload):
+        if action != "hello":
+            raise ValueError(f"unknown action: {action}")
+        print("Hello from AirDeck!", file=sys.stderr)
+
+if __name__ == "__main__":
+    run(Plugin())
+```
+
+## How the Python code works
+
+The import setup looks first for a packaged `sdk` folder next to `plugin.py`. During source development it falls back to the public SDK checkout. The builder copies the runtime SDK files into the package, so an installed plugin does not depend on the developer's folder structure.
+
+`Plugin` subclasses `DeckPlugin`. `catalog` returns a list of dictionaries with stable button/action/plugin IDs. `invoke` receives already-decoded dictionaries for `body` and `payload`; the starter does not use them yet.
+
+`print(..., file=sys.stderr)` is essential. A plain `print` writes to stdout and can corrupt the helper protocol. Raising `ValueError` for an unknown action lets the SDK return an error response instead of silently doing nothing.
+
+The `if __name__ == "__main__"` block starts the SDK host loop. The SDK keeps its reader active while handlers run. If you later add shared mutable state, protect it with a lock because handlers and subscription callbacks can run concurrently.
+
+The package includes Python SDK source files. It does not include a Python interpreter, so users must have Python 3.10+ on PATH.
+
+## Follow a button press through the code
+
+1. The helper asks for a catalog. Your catalog function returns **Say hello** with action `hello`.
+2. The phone shows that action in the plugin library after installation.
+3. When the saved button is tapped, the helper invokes `hello` on your plugin.
+4. Your handler writes `Hello from AirDeck!` to stderr.
+5. The SDK returns the correlated success response. An unknown action produces a correlated error instead.
+
+The installed plugin ID, catalog button ID and action string have different jobs. Read [buttons and actions](../reference/catalog) if you want a more detailed explanation.
+
+## Build the package
+
+From the SDK root:
+
+```sh
+python3 tools/plugin.py build my-first-plugin
+```
+
+The builder reads `airdeck.build.json`, compiles or collects the runtime files, and creates a package. A successful command prints the path to install:
+
+```text
+deck-plugins/dist/starters/my-first-plugin/python/com.yourname.hello.deckPlugin
+```
+
+The package is rebuilt from the current source. Do not edit the executable or ZIP archive to change the plugin's behavior; edit your source and build again.
+
+## Test without the helper
+
+```sh
+python3 tools/plugin.py test my-first-plugin
+```
+
+The test extracts the package into a fresh temporary directory, clears `PYTHONPATH` and `CLASSPATH`, starts the entrypoint and checks three requests: catalog, a successful `hello` invocation, and an unknown action. You should see `PASS isolated package`.
+
+This establishes that the installed package can find its own runtime files. It does not certify phone UI behavior or platform-specific OS actions. Continue to [Build and install](./install) for the full journey.
+
+## Make your first change
+
+Change the diagnostic text to `Hello from my plugin!`, then run the build and test commands again. Next, change the catalog title from `Say hello` to a title meaningful to your action. Keep the action string consistent with the condition in your handler.
+
+After a successful change, add a second button with a new button ID and action string. Handle that action explicitly. Add permissions only when you introduce a broker capability call; the [core capability guide](../reference/capabilities) shows how.
+
+## Platform notes
+
+On Windows use your `python` command in place of `python3`. Build native binaries on the OS/architecture you intend to support. Python/Java Windows packages use a native launcher built with Go; users still need the appropriate runtime.
+
+The generated starters and isolated-package checks have been executed on macOS. The Windows launcher can be cross-compiled, but real Windows helper execution remains a separate verification step.

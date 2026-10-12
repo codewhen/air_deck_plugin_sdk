@@ -1,0 +1,15 @@
+{
+  "title": "Get started",
+  "pages": [
+    "index",
+    "setup",
+    "create",
+    "go",
+    "python",
+    "java",
+    "cpp",
+    "install",
+    "debug",
+    "next-steps"
+  ]
+}

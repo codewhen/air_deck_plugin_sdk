@@ -1,0 +1,24 @@
+{
+  "title": "Documentation",
+  "pages": [
+    "index",
+    "architecture",
+    "project-structure",
+    "manifest",
+    "catalog",
+    "sdk",
+    "protocol",
+    "capabilities",
+    "core-media",
+    "core-keyboard",
+    "core-pointer",
+    "core-apps",
+    "providers",
+    "configuration",
+    "distribution",
+    "versioning",
+    "testing",
+    "troubleshooting",
+    "contributing"
+  ]
+}

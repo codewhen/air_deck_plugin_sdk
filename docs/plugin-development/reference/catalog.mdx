@@ -1,0 +1,60 @@
+---
+title: "Buttons and actions"
+description: "Give saved deck commands stable identities and predictable behavior."
+---
+
+## Three identities with different jobs
+
+The plugin ID identifies the installed product, such as `com.yourname.hello`. A button ID identifies one catalog entry, such as `hello.say`. The action string selects the behavior inside your handler, such as `hello`.
+
+A display title is the label the user sees. Changing it does not require changing any of those stable identities. Avoid changing IDs just to rename a feature.
+
+## A complete tap entry
+
+```json
+{
+  "id": "hello.say",
+  "title": "Say hello",
+  "icon_key": "plugins",
+  "columns": 1,
+  "rows": 1,
+  "action": "hello",
+  "plugin_id": "com.yourname.hello",
+  "editor": {"tap": true}
+}
+```
+
+| Field | Responsibility |
+| --- | --- |
+| `id` | Stable identity of this catalog entry |
+| `title` | Short, useful label for the button |
+| `action` | Handler operation selected by the helper |
+| `plugin_id` | Owner; must agree with the installed manifest |
+| `icon_key` | Supported icon key; examples use `plugins` |
+| `columns`, `rows` | Catalog size metadata; the starter uses one by one |
+| `editor.tap` | Makes the action available to tap-button editing |
+| `editor.toggle` | Makes it available to toggle-button editing |
+
+The Go/helper button model also has an optional `component_id` for advanced component integration. It is not needed by the starter and is not a promise of arbitrary custom phone screens.
+
+## Multiple buttons
+
+Return a separate entry for each user-facing action. Use different button IDs and meaningful titles. Buttons may share an action when they pass different validated parameters, or they may use separate actions for clearly different operations.
+
+Keep catalog discovery fast. If dynamic data is temporarily unavailable, decide whether you can return stable static actions or should report an availability error. Do not perform irreversible operations while building the catalog.
+
+## Handling body and payload
+
+The routed request has both `body` and `payload`. Their meaning depends on the action/host event you define. Go receives raw JSON; Python receives decoded dictionaries; Java and C++ receive JSON strings in their basic invocation interface.
+
+Document your expected fields, required values and validation. Reject unsupported actions and invalid input before operating on the desktop. Do not treat arbitrary strings as shell commands just because they arrived in a button payload.
+
+## Tap versus toggle
+
+A tap runs an operation. A toggle represents meaningful on/off behavior. Setting the editor flag only exposes a choice in the editor; it does not implement state tracking or define what toggling means.
+
+For a toggle that controls an external application, use observed application state where available. A remembered last tap can become stale after an external change, reconnect or process restart.
+
+## Saved-layout compatibility
+
+Existing layouts may retain old action names. When changing a catalog, preserve compatible actions or provide a clear migration. Keep a stable plugin ID across version upgrades, and test both a new layout and an existing saved button.

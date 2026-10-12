@@ -1,0 +1,35 @@
+---
+title: "Get started"
+description: "Create, understand, build and install your first AirDeck plugin."
+---
+
+## Your first result
+
+You will create a plugin named **Hello AirDeck** with one button, **Say hello**. Its action prints `Hello from AirDeck!` to stderr, which is the diagnostic output stream. AirDeck's protocol stays on stdout.
+
+The starter needs no broker permissions. Once this works, you can replace the hello action with your own logic or add a [typed core capability call](../reference/capabilities).
+
+## The path through this section
+
+| Step | What you do | What you should have afterward |
+| --- | --- | --- |
+| [Set up](./setup) | Install a toolchain and clone the public SDK | A working terminal in the SDK folder |
+| [Create a starter](./create) | Generate a new project and inspect its files | Your own manifest and source code |
+| Choose [Go](./go), [Python](./python), [Java](./java) or [C++](./cpp) | Understand and run a complete implementation | A standalone `.deckPlugin` package |
+| [Build and install](./install) | Verify the package and add its button to a deck | A working action on the phone |
+| [Debug](./debug) | Read responses/logs and fix common mistakes | A repeatable development loop |
+| [Next steps](./next-steps) | Add real actions, permissions and tests | A plan for your first useful release |
+
+Choose one language. The four language chapters implement the same action; they are alternatives, not four steps you must complete.
+
+## Commands and working directory
+
+Commands run from the root of the cloned SDK unless the page explicitly says otherwise. That root contains `deck-plugins`, `capabilities`, `docs` and `tools`.
+
+On macOS use `python3`. On Windows, use `python` if that is how your Python installation is exposed on PATH. The documentation writes `python3` to keep commands consistent.
+
+The new starter projects are generated in `deck-plugins/plugins/<project-name>`. They live there so the included build tooling can use the local SDK without downloading an unreleased module version. You can move a production project into your own repository later; see [project structure and SDK dependencies](../reference/project-structure).
+
+## Already have a plugin?
+
+Skip to [manifest reference](../reference/manifest), [SDK reference](../reference/sdk), or [packaging](../reference/distribution). The existing Echo Beep examples remain available for comparing implementations, but the guided path starts with a new Hello AirDeck project.

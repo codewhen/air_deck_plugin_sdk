@@ -47,3 +47,15 @@ python3 tools/check_docs.py
 python3 tools/build_examples.py all --gson /path/to/gson.jar
 python3 tools/test_packaged_examples.py deck-plugins/dist/examples/*/*.deckPlugin
 ```
+
+## Create a new plugin from scratch
+
+```sh
+python3 tools/plugin.py create go my-first-plugin --id com.yourname.hello --name "Hello AirDeck"
+python3 tools/plugin.py build my-first-plugin
+python3 tools/plugin.py test my-first-plugin
+```
+
+Choose `go`, `python`, `java` or `cpp`. Java builds need `--gson /path/to/gson.jar`; Python/Java Windows builds also need Go to create a native launcher. The public guide has a sequential [Get started](docs/plugin-development/get-started/index.mdx) path and a detailed [Documentation](docs/plugin-development/reference/index.mdx) reference.
+
+Core reference tables are generated from schemas with `python3 tools/generate_reference_docs.py`. Validate all pages with `python3 tools/check_docs.py`. Run all four scaffold/build/package tests with `GSON_JAR=/path/to/gson.jar python3 tools/test_starters.py`.

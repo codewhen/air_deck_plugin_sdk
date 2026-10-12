@@ -3,6 +3,8 @@ title: "Contribute to the SDK and docs"
 description: "Improve the public toolkit and the documentation shown on CodeWhen."
 ---
 
+This website is the reading surface. The public SDK repository is the contribution surface. Keep one documentation source and pin reviewed revisions for website builds.
+
 ## Where contributions go
 
 Documentation shown at CodeWhen is authored in `docs/plugin-development` in the public `codewhen/air_deck_plugin_sdk` repository. Use **Edit this page** to open the corresponding source on GitHub. Submit documentation changes there, not a copied page in the website repository.
@@ -22,3 +24,21 @@ Follow `CONTRIBUTING.md` in the SDK root. Include regression coverage for change
 ## Source ownership
 
 The public SDK is Apache-2.0 licensed. Community plugin implementations may have their own license and distribution model. AirDeck-owned private implementations such as OBS stay outside this repository. Do not upload private plugin source, signing keys, personal configs or generated packages as documentation assets.
+
+## The two documentation sections
+
+`docs/plugin-development/get-started` contains the sequential beginner path. `docs/plugin-development/reference` contains topic-based explanations and generated core contract references. Add a page to the corresponding `meta.json` so navigation and previous/next order remain intentional.
+
+Keep each tutorial outcome verifiable. Include prerequisites, the working directory, complete starter code or a direct source link, build/test commands and expected output. Define unfamiliar terms before using them.
+
+## Starter contributions
+
+Starter implementations live under `tools/templates`. The creator inserts a plugin ID into those templates. Update the template and its documentation together. Run the all-language starter tests with `GSON_JAR` pointing to a vetted local Gson JAR.
+
+Do not add OS side effects merely to make a beginner demo look more exciting. A minimal diagnostic action should remain predictable and require no broker permissions.
+
+## Generated references
+
+Core method/type reference pages are derived from `capabilities/schemas` using `tools/generate_reference_docs.py`. Update schemas and regenerate those pages; do not hand-edit generated tables. Narrative guides and semantic/platform notes remain human-maintained.
+
+Run `python3 tools/check_docs.py` to validate navigation, required metadata and relative document links. The website's HTTP checks validate rendered pages, search, anchors, legacy redirects and sitemap coverage.

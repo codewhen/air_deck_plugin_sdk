@@ -1,0 +1,45 @@
+---
+title: "Documentation"
+description: "A topic-by-topic reference for the complete plugin development workflow."
+---
+
+Use this section to look up exact concepts, fields, APIs and behaviors. If you want a working first project, start with [Get started](../get-started/index) and return here when a topic becomes relevant.
+
+## Understand the system
+
+- [How plugins work](./architecture): phone, helper, executable, catalog and invocation.
+- [Project structure](./project-structure): source files, development configuration, SDK dependencies and release artifacts.
+- [Manifest reference](./manifest): every supported manifest field and compatibility declarations.
+- [Buttons and actions](./catalog): IDs, titles, payloads and editor behavior.
+
+## Implement the behavior
+
+- [SDK reference](./sdk): required/optional interfaces and host methods in all four languages.
+- [Protocol reference](./protocol): JSON lines, correlation, request/reply shapes, lifecycle and errors.
+- [Core capabilities](./capabilities): typed clients, permissions and subscriptions.
+- [Media](./core-media), [keyboard](./core-keyboard), [pointer](./core-pointer), [applications](./core-apps): complete method/topic/type references generated from the public schemas.
+- [Providers and dependencies](./providers): exposing reusable capabilities and consuming another plugin.
+- [Configuration](./configuration): packaged defaults, user settings and secrets.
+
+## Ship and maintain it
+
+- [Packaging and distribution](./distribution): runtime resources, platform builds, notices and installation.
+- [Versions and upgrades](./versioning): API vs plugin vs capability versions and compatibility ranges.
+- [Testing](./testing): deterministic logic checks, packaged checks and real-device scenarios.
+- [Troubleshooting](./troubleshooting): startup, framing, missing dependencies and unavailable features.
+- [Contributing](./contributing): where source/docs changes go and how the website adopts them.
+
+## Terms used throughout the guide
+
+| Term | Meaning |
+| --- | --- |
+| SDK | Public libraries and tools used by your plugin |
+| Plugin | Your executable implementation and its declared actions |
+| Helper / host | AirDeck's computer-side application that starts plugins and routes commands |
+| Catalog | The list of actions/buttons your plugin offers |
+| Invocation | One request to perform a particular action |
+| Capability | A versioned service exposed by the helper or a provider plugin |
+| Permission | A grant required to use a broker operation or topic |
+| Package | A `.deckPlugin` archive containing installation/runtime files |
+
+This reference covers API v2. A successful protocol response means the handler completed successfully; it is not a guarantee that every external application supports the requested operation.

@@ -1,0 +1,65 @@
+---
+title: "SDK reference"
+description: "The required plugin interfaces and host operations in all four languages."
+---
+
+## Required interfaces
+
+| Language | Catalog | Invocation | Start the loop |
+| --- | --- | --- | --- |
+| Go | `Catalog() []decksdk.Button` | `Invoke(typ, action string, body, payload json.RawMessage) error` | `decksdk.Run(plugin)` |
+| Python | `catalog()` returning button dictionaries | `invoke(typ, action, body, payload)` | `run(plugin)` |
+| Java | `List<Button> catalog()` | `invoke(String type, String action, String bodyJson, String payloadJson)` | `PluginHost.run(plugin)` |
+| C++ | `std::vector<decksdk::Button> catalog()` | `invoke(const std::string&, const std::string&, const std::string&, const std::string&)` | `decksdk::run(plugin)` |
+
+Return a useful error/throw an exception for a failed invocation. Keep the catalog separate from the operation itself. The starter chapters show complete runnable implementations for each interface.
+
+## Initialization and transport
+
+Initialization gives the plugin its host transport before ordinary handlers are dispatched. Use it to construct generated capability clients and register providers.
+
+| Language | Optional initializer |
+| --- | --- |
+| Go | Implement `Init(*decksdk.Host)` |
+| Python | Implement `init(host)` |
+| Java | Implement `PluginHost.Initializer` and `init(PluginHost host)` |
+| C++ | Override `init(decksdk::Host&)` |
+
+Initialization can fail; do not assume partially initialized clients are ready. Keep it bounded and avoid doing expensive unrelated work before a catalog becomes available.
+
+## Host methods
+
+| Operation | Go | Python | Java | C++ |
+| --- | --- | --- | --- | --- |
+| Call a method | `Call(ctx, capability, method, request, result)` | `call(capability, method, payload)` | `call(capability, method, JsonObject)` | `call(capability, method, json)` |
+| Subscribe | `Subscribe(ctx, capability, topic, callback)` | `subscribe(capability, topic, callback)` | `subscribe(capability, topic, callback)` | `subscribe(capability, topic, callback)` |
+| Register provider | `Provide(id, dispatcher)` | `provide(id, dispatcher)` | `provide(id, dispatcher)` | `provide(id, dispatcher)` |
+| Publish state | `Publish(ctx, capability, topic, value)` | `publish(capability, topic, value)` | `publish(capability, topic, value)` | `publish(capability, topic, value)` |
+
+Prefer generated clients over direct transport calls so requests and results use the declared contract types. Go transport methods return errors; Python/Java/C++ expose failures through exceptions. Subscriptions return an unsubscribe function; Go also returns an error from subscription setup.
+
+## Timeouts and errors
+
+Current SDK host exchanges have a four-second timeout. Go also accepts a context, so a shorter caller deadline can end a request earlier. A timeout triggers cancellation signaling and removes the pending request entry.
+
+Do not assume timeout means an external side effect never occurred. A process or OS service may have completed the action before the reply was lost. Decide whether an operation is safe to retry.
+
+Use `decksdk.CapabilityError`, Python `CapabilityError`, Java's `CapabilityException` or C++ `decksdk::CapabilityError` to preserve structured broker error codes. Ordinary exceptions/errors are still returned as failed invocations.
+
+## Concurrency and reader ownership
+
+Handlers and subscription callbacks may overlap. The SDK keeps its reader available while requests await capability results. A blocking custom stdin reader can steal responses and deadlock calls.
+
+Protect shared mutable state with the language's synchronization mechanisms. Avoid holding a state lock while waiting for a host round trip if a callback needs the same lock. Do not write protocol messages concurrently without going through the SDK's serialized writer.
+
+## Optional polling
+
+A manifest can request a `poll_tier`; the helper schedules polls. Do not start an independent recurring timer just to duplicate the host scheduler.
+
+The signatures differ: Go's optional `Poll() error` performs refresh/publish work, Python may implement `poll()`, Java has a default `poll()` method and C++ has a virtual `poll()`. Prefer declared capability topics for shared state rather than relying on identical polling return shapes across languages.
+
+## Shutdown
+
+The SDK's reader ends when the input stream closes. Pending exchanges fail when the host disconnects. Release resources and unsubscribe while your plugin is still running when possible; forced termination and crashes cannot guarantee application-level final cleanup.
+
+For the exact language implementation, read `deck-plugins/sdk`. For wire shapes, continue to [Protocol reference](./protocol).

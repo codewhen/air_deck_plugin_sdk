@@ -1,0 +1,71 @@
+---
+title: "Create a starter plugin"
+description: "Generate a new project and understand every file before editing it."
+---
+
+## Create your project
+
+From the SDK root, run the command for one language. Use a folder name without spaces and a dotted plugin ID in a namespace you control.
+
+```sh
+python3 tools/plugin.py create go my-first-plugin   --id com.yourname.hello --name "Hello AirDeck"
+```
+
+Replace `go` with `python`, `java` or `cpp` if that is your chosen language. On Windows, put the command on one line and use your Python command; the backslash line continuation above is for Unix shells.
+
+`my-first-plugin` is a local project folder. `com.yourname.hello` is the stable identity installed by the helper. `Hello AirDeck` is the user-facing product name. These are different things.
+
+The command creates a new folder. It refuses to overwrite an existing project, so rerunning it with the same folder name gives an error rather than replacing your work.
+
+## Understand the generated files
+
+```text
+deck-plugins/plugins/my-first-plugin/
+  manifest.json
+  airdeck.build.json
+  README.md
+  main.go        # Go, or main.cpp for C++
+  plugin.py      # Python only
+  Plugin.java    # Java only
+```
+
+The source file depends on the language you chose; you will not get all four files in one project.
+
+| File | Responsibility |
+| --- | --- |
+| `manifest.json` | Identity, version, entrypoint and permissions read by the helper |
+| Source file | The button catalog and the code that handles `hello` |
+| `airdeck.build.json` | Local development-tool settings: language, entry filename/class and test action |
+| `README.md` | Commands for this project |
+
+`airdeck.build.json` is not part of the plugin runtime API and is not packaged for users. The builder uses it to choose the toolchain. Your manifest remains the public installation contract.
+
+## Read your manifest
+
+```json
+{
+  "id": "com.yourname.hello",
+  "name": "Hello AirDeck",
+  "version": "1.0.0",
+  "api_version": 2,
+  "mode": "targeted",
+  "types": [],
+  "entrypoint": "./plugin",
+  "permissions": [],
+  "files": []
+}
+```
+
+For Python the source manifest uses `./plugin.py`. Packaging selects the final executable/script entrypoint for the target OS and fills the required runtime files into the packaged manifest.
+
+`permissions: []` is deliberate: the starter writes a log line and does not call any permission-controlled host capability. If you add a media, keyboard, pointer or application capability, add its permission and `uses` declaration too.
+
+## Keep identity consistent
+
+The manifest's plugin ID must match the plugin ID returned by the source's catalog. The generator sets both to the `--id` you supplied.
+
+If you change the ID manually, update both places. Keep the ID stable across releases so saved deck buttons continue to point to the same plugin. Changing the display name is a separate operation.
+
+## Pick the implementation chapter
+
+Continue with [Go](./go), [Python](./python), [Java](./java) or [C++](./cpp). Each chapter includes the complete starter code and explains its responsibilities before the build command.

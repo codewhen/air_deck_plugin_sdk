@@ -3,6 +3,8 @@ title: "Test your plugin"
 description: "Validate protocol, packaging and the real button journey."
 ---
 
+A plugin has several separate test boundaries: its own logic, SDK messages, package completeness, permission/compatibility behavior and the real phone/helper action. Pick a check that exercises the boundary you are trying to validate.
+
 ## Test the SDK and your implementation
 
 ```sh
@@ -33,3 +35,29 @@ This exercises catalog, successful invocation, unknown-action errors and correla
 - Inspect the archive for missing resources, secrets, personal config and unexpected binaries.
 
 The currently documented example packaging was executed on macOS. Windows-specific launchers and commands are supplied for verification; compilation on another OS does not certify Windows execution.
+
+## Test a generated starter
+
+```sh
+python3 tools/plugin.py test my-first-plugin
+```
+
+This uses the project's configured action. It extracts the package outside the checkout and verifies catalog, success and an unknown-action error. It does not press a phone UI button or validate an external player.
+
+## Test your action logic
+
+Separate pure validation/decision logic from OS/service adapters. Unit-test required fields, supported actions, rejected input, dependency errors and successful behavior. Mock an external boundary when testing logic; separately execute the real adapter before release.
+
+## Capability-specific scenarios
+
+Exercise missing grants, revoked grants, incompatible version ranges, provider removal, cancellation/timeout, malformed request values, state-topic updates and cleanup. A passing catalog check does not establish that your permission-controlled action is authorized.
+
+## Platform and lifecycle scenarios
+
+Verify a clean install, update over an older release, saved buttons, user config, helper restart, plugin process exit/crash, disconnect/reconnect and disable/remove/reinstall. Test each OS/architecture you list in a release.
+
+For high-impact actions, check duplicate invocation/retry behavior. For shared state, use the language's concurrency/race checks where available. For polling/subscriptions, measure resource use during idle, active use and reconnect rather than testing only one click.
+
+## Evidence to retain
+
+Record the source/SDK revision, package version, OS/architecture, toolchain/runtime versions, command, exit code and relevant logs. Keep logs redacted. Distinguish compiled, simulated, isolated-package and real-device verification instead of presenting them as equivalent evidence.

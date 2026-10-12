@@ -1,0 +1,106 @@
+---
+title: "Keyboard capability"
+description: "Supported key presses and hotkey combinations."
+---
+
+This page is generated from `core.keyboard.json`. Contract version: **1.0.0**. Edit the public schema and run `python3 tools/generate_reference_docs.py` to update the tables and payload shapes.
+
+## Before calling this capability
+
+Declare the permissions needed by your selected methods/topics and a compatible `uses` range for `core.keyboard`. Construct the generated client from the SDK host during initialization. Handle denied permissions, incompatible contracts and operational failures.
+
+The current core key-press implementation accepts the lowercase keys `up`, `down`, `left`, `right` and `enter`. The string schema is not a promise that every possible key name is supported. Unsupported names return `invalid_arguments`.
+
+Use `hotkey` for a supported combination and test its platform-specific parsing and effect. Avoid leaving keys pressed or assuming a keyboard layout is identical on every machine.
+
+## Permission IDs
+
+| ID | User-facing purpose |
+| --- | --- |
+| `core.keyboard.press` | Send keyboard keys |
+| `core.keyboard.hotkey` | Execute keyboard shortcuts |
+
+## Methods
+
+The method names below are the contract/wire names. Generated clients expose language-appropriate names; use those clients rather than manually inventing JSON fields.
+
+### `press`
+
+Request: `Key`. Result: `Empty`.
+
+Required permissions: `core.keyboard.press`.
+
+Example request payload shape:
+
+```json
+{
+  "key": "enter"
+}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+### `hotkey`
+
+Request: `Combo`. Result: `Empty`.
+
+Required permissions: `core.keyboard.hotkey`.
+
+Example request payload shape:
+
+```json
+{
+  "combo": "ctrl+c"
+}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+## Topics
+
+This contract declares no state topics.
+
+## Types
+
+These objects are closed: their schema does not allow additional properties. Every listed property is required in this version.
+
+### `Empty`
+
+An empty object: `{}`.
+
+### `Key`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `key` | `string` | No additional schema constraint |
+
+Example value shape:
+
+```json
+{
+  "key": "example"
+}
+```
+
+### `Combo`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `combo` | `string` | No additional schema constraint |
+
+Example value shape:
+
+```json
+{
+  "combo": "example"
+}
+```
+
+## Permission groups
+
+No permission groups are declared by this contract.
+
+
+## Verification checklist
+
+Test a valid operation, invalid input, missing/revoked permission, unsupported OS/application behavior and incompatible contract version. For topics, test initial/current state, later updates and unsubscribe. A packaged protocol test alone cannot verify this native operation.

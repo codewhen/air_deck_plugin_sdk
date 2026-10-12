@@ -3,6 +3,8 @@ title: "Package and distribute"
 description: "Ship runtime-complete packages for the correct operating system."
 ---
 
+A build produces an executable or language runtime files. Packaging arranges them into an installable `.deckPlugin`. Distribution shares that package with users. Test each stage; a successful compiler command alone is not an installation check.
+
 ## Build a tutorial package
 
 From the SDK root:
@@ -41,3 +43,32 @@ Keep the plugin ID stable. Increase the version for releases and declare compati
 ## Publishing
 
 Distribute the binary package and clear installation instructions. Marketplace submission is a maintainer-reviewed process; there is no public self-service upload API documented here. Open an SDK issue to discuss publication. Do not commit generated binaries or secrets into documentation pull requests.
+
+## Starter build commands
+
+New projects created by the guided tutorial have a local build configuration:
+
+```sh
+python3 tools/plugin.py build my-first-plugin
+python3 tools/plugin.py test my-first-plugin
+```
+
+For Java, pass a vetted Gson JAR to the build command. The test reads the configured action, so change `airdeck.build.json`'s `action` when replacing the starter's `hello` behavior.
+
+## Native release matrix
+
+Keep packages for macOS/Windows and CPU architectures distinct. A native Go/C++ executable compiled for one target cannot be made compatible merely by changing its filename. Verify launch behavior and dependencies on the actual target computer.
+
+A cross-compiled Windows launcher is evidence that the source compiles for Windows. It is not evidence that a GUI-started helper can find Python/Java, that OS permissions are correct, or that the action works on that computer.
+
+## Inspect the final archive
+
+Open the ZIP using an archive viewer. Check the root manifest, executable/script mode, resource paths, runtime JAR/SDK files and notices. Inspect the packaged manifest because the builder may have selected a different platform entrypoint than the source manifest.
+
+The generic packer includes only the entrypoint and declared resources. It does not recursively bundle every shared library, install Python/Java, or scan arbitrary dependencies. Prepare a runtime-complete directory before calling it.
+
+## Release information to publish
+
+Provide a plugin ID/name/version, supported helper/capability versions, OS/architecture, runtime prerequisites, required permissions, installation steps, config setup and known limitations. Describe what the action does and what a failure means.
+
+Publish source only if that is your chosen license/distribution model. Free binary distribution and private source can coexist. The public SDK's license notices still apply to included SDK code.

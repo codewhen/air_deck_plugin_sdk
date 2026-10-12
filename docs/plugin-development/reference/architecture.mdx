@@ -1,0 +1,48 @@
+---
+title: "How plugins work"
+description: "Understand the path from a phone button to your desktop code."
+---
+
+## The three running pieces
+
+The Android app is the remote. AirDeck Helper runs on the computer. Your plugin is a separate executable process started by the helper.
+
+The phone does not directly start your executable, compile your source or load a Java/Python SDK. It sends a saved deck command to its paired helper. The helper chooses the installed plugin and asks it to handle that command.
+
+```text
+Phone deck button
+    → paired AirDeck Helper
+    → installed plugin executable
+    → action logic or a host capability call
+    → correlated success/error reply
+```
+
+## Discovery is separate from execution
+
+Your catalog describes available buttons. It should be quick and dependable. The helper can request it to populate the phone's plugin library. Catalog discovery should not trigger the action itself.
+
+Invocation is the separate request that performs the selected action. It includes an action name and optional data. This separation lets people browse and configure a button without accidentally running it.
+
+## What the SDK handles
+
+The SDK runs a line-oriented reader, dispatches supported operations, and writes replies with the appropriate request IDs. It also manages capability calls/subscriptions while keeping the reader active.
+
+You supply the catalog, action logic and optional initialization/provider/polling code. Do not wrap the SDK in a competing stdin reader or write unrelated output to stdout.
+
+## Why capabilities exist
+
+Core capabilities offer supported keyboard, pointer, media and application operations through typed contracts. The helper checks required permissions and compatibility before routing broker operations.
+
+A plugin executable can still perform native operations outside that broker. Capability approval is not an OS sandbox and should not be presented as one. Users need to trust the software author and package they install.
+
+## Where state belongs
+
+A plugin process may keep temporary state, but process memory is lost on restart. Persistent configuration belongs in explicit user-owned files. Saved phone buttons reference stable plugin/button/action identities.
+
+Callbacks and invocations may overlap. Protect mutable state, avoid holding a lock while waiting for a host reply, and separate an external application's observed state from the last command you sent it.
+
+## Availability boundaries
+
+An installed plugin may be disabled, revoked, incompatible or unable to start. An external player/application may be unavailable even while the plugin is running. Handle each boundary as a failure that the caller can understand.
+
+The public SDK creates deck actions. Custom mobile plugin screens, a public self-service marketplace submission API and paid entitlement enforcement are not supplied by this guide.

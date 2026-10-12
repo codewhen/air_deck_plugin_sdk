@@ -3,6 +3,8 @@ title: "Use core capabilities"
 description: "Call typed media, keyboard, pointer and app operations."
 ---
 
+A capability is a versioned service. A generated client turns its method/type schema into normal language calls. Permissions and compatible version declarations are part of the manifest, not optional comments in source.
+
 ## Available contracts
 
 The authoritative contracts are under `capabilities/schemas`. Generated clients are under `capabilities/generated`; Python clients also ship in its SDK package.
@@ -60,3 +62,31 @@ python3 capabilities/tools/generate.py
 ```
 
 Private helper integration assets are not required for community plugin development.
+
+## A complete integration sequence
+
+1. Read the capability schema and choose the exact methods/topics you need.
+2. Add only their required permission IDs to the plugin manifest.
+3. Declare the capability's compatible version range in `uses`.
+4. Construct a generated client from the host during initialization.
+5. Call the method from an action handler, preserve any failure and handle unavailable services.
+6. If subscribing, retain and eventually call the unsubscribe function.
+7. Rebuild, approve the changed permissions in the helper and test the real action.
+
+## Permission ownership
+
+A permission ID belongs to a capability namespace. A provider's permission namespace must be under its plugin ID. A consumer requests those IDs; a provider exposing its own method does not need to request its consumer permission merely to register the provider.
+
+Schemas can define groups of permission IDs. Follow the helper's supported permission expansion/approval behavior rather than inventing a new group name. Review the leaf permissions needed by each operation.
+
+## Exact request/result types
+
+Schema object types are closed and declare required properties. Send all required fields and reject unexpected fields in your own contract. Generated types help you match that shape, but they do not remove semantic validation such as whether an application target or keyboard key is actually supported.
+
+Read [Media](./core-media), [Keyboard](./core-keyboard), [Pointer](./core-pointer) and [Applications](./core-apps) for method/topic/type tables and example payload shapes.
+
+## Commands versus observed state
+
+A command request asks for an operation. A state read/topic reports what the helper can observe. Sending pause does not mean every player exposes reliable paused metadata immediately. Check availability and handle unknown state explicitly.
+
+Use subscriptions when state must stay current. Avoid spinning high-frequency timers in every consumer; the helper owns core refresh and broker delivery policy.

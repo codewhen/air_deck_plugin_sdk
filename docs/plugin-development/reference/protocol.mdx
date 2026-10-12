@@ -1,0 +1,81 @@
+---
+title: "SDK and protocol"
+description: "Implement catalog and invoke while the SDK handles correlated messages."
+---
+
+This chapter describes the process boundary, not the encrypted phone/helper transport. You normally use the SDK and generated clients; understanding these messages helps when a package fails to start or stops replying.
+
+## The process contract
+
+AirDeck Helper starts the plugin and exchanges one JSON object per line over stdin/stdout. API v2 requests and replies use `ipc_id` for correlation. Write diagnostic logs to **stderr** only. Avoid stdout prints from subprocesses too.
+
+```json
+{"op":"catalog","ipc_id":"catalog-1"}
+{"op":"ok","ipc_id":"catalog-1","buttons":[{"id":"echo.beep","title":"Echo Beep","action":"beep","plugin_id":"com.example.echo","columns":1,"rows":1}]}
+```
+
+An invocation includes its type, action, body and payload:
+
+```json
+{"op":"invoke","ipc_id":"invoke-1","type":"plugin.command","action":"beep","body":{},"payload":{}}
+{"op":"ok","ipc_id":"invoke-1"}
+```
+
+Use the SDK rather than implementing framing and concurrency yourself.
+
+## Lifecycle and button catalog
+
+Implement catalog and invoke, then run the SDK host loop. Go plugins may implement `Init(*decksdk.Host)`; Python uses `init(host)`; Java uses `PluginHost.Initializer`; C++ overrides `init(Host&)`.
+
+Buttons have a stable ID, user-facing title, action and plugin ID. The examples use `icon_key: "plugins"`, one column and one row. Editor flags indicate tap/toggle support. Optional polling can return button states where supported by the SDK.
+
+## Capability traffic
+
+The SDK can issue `capability.call`, `capability.subscribe`, `capability.publish` and cancellation/unsubscribe messages while processing a host request. The reader must continue running so calls receive replies. Use generated clients and SDK methods for this behavior.
+
+## Errors and timeouts
+
+A failed request returns `op: "error"`, a matching `ipc_id`, and an error message; SDK capability errors preserve structured codes. Distinguish denied permissions, unavailable capabilities, invalid arguments and operational failures. Do not retry destructive operations blindly after a timeout.
+
+```json
+{"op":"error","ipc_id":"invoke-1","code":"permission_denied","error":"Not granted"}
+```
+
+Design actions to finish promptly and honor cancellation where the language API supplies it. Close subscriptions and resources on shutdown. Do not depend on final cleanup after a crash or forced termination.
+
+## Operation inventory
+
+| Operation | Direction | Responsibility |
+| --- | --- | --- |
+| `catalog` | Helper → plugin | Discover available buttons |
+| `invoke` | Helper → plugin | Run an action |
+| `poll` | Helper → plugin | Host-scheduled refresh |
+| `capability.invoke` | Helper → provider plugin | Dispatch a declared provider method |
+| `capability.call` | Plugin → helper | Request a broker method |
+| `capability.result` | Helper → plugin | Complete a broker exchange |
+| `capability.subscribe` | Plugin → helper | Start receiving a declared topic |
+| `capability.state` | Helper → plugin | Deliver a subscription update |
+| `capability.unsubscribe` | Plugin → helper | Release a subscription |
+| `capability.publish` | Provider plugin → helper | Publish a declared topic value |
+| `capability.cancel` | Plugin → helper | Cancel a pending exchange |
+
+## Capability request and result
+
+```json
+{"op":"capability.call","ipc_id":"media-1","capability":"core.media","action":"getPlayback","payload":{}}
+{"op":"capability.result","ipc_id":"media-1","value":{"status":"playing","available":true}}
+```
+
+`action` is the method name for this operation, not a phone catalog action. The typed client supplies that name and request shape. On failure, the result has an error and code rather than a successful value.
+
+## Subscription identity
+
+The subscription request has its own correlation ID. The SDK associates future `capability.state` messages with that subscription and calls the registered callback. The state envelope's payload contains the declared topic value; use the SDK callback value rather than manually guessing envelope nesting.
+
+Unsubscribe/cancel messages identify the subscription or request they end. Do not confuse a saved button ID with a transport correlation ID; those values serve different purposes.
+
+## Diagnosing framing failures
+
+Every protocol JSON object ends with a newline. Flush output promptly. Arbitrary log lines, startup banners, child-process stdout or a byte-order marker before JSON can interfere with parsing. Use stderr for diagnostics and let the SDK produce replies.
+
+Replies may arrive in a different order from requests because handlers can run concurrently. Match `ipc_id`, not line position. Never assume a particular response is for the last command just because it is the next line read.

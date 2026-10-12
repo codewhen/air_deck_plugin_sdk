@@ -1,0 +1,63 @@
+---
+title: "Set up your environment"
+description: "Install only the tools needed for your chosen language."
+---
+
+## Choose a language
+
+Use a language you already know when possible. Go and C++ produce native executables. Python and Java are convenient for development but require their runtime on the user's computer.
+
+| Choice | Development requirements | Runtime requirements for users |
+| --- | --- | --- |
+| Go | Go version declared in `deck-plugins/go.mod`, Python 3.10+ for tooling | No Go installation |
+| Python | Python 3.10+; Go is also needed to build the Windows launcher | Python 3.10+ on PATH |
+| Java | JDK 17+, a Gson JAR, Python tooling; Go for the Windows launcher | Java 17+ on PATH |
+| C++ | C++17 compiler and Python tooling | Applicable compiler/system runtime |
+
+Python 3.11+ is a convenient default for tooling. Git is needed to clone and update the SDK. You do not need an account, signing key, paid IDE or private AirDeck source to start.
+
+## Check the tools
+
+```sh
+git --version
+python3 --version
+```
+
+Then check only your chosen language:
+
+```sh
+go version
+# Java:
+java -version
+javac -version
+jar --version
+# C++:
+c++ --version
+```
+
+A command-not-found error means that program is not installed or is not on PATH. Restart the terminal after changing PATH. When installing a runtime for use by the helper, restart the helper too.
+
+For C++ on Windows, use a compatible MinGW C++ toolchain for this builder and set `CXX` if its command is named `g++`. MSVC has different command-line flags and needs its own build setup.
+
+## Get the SDK
+
+```sh
+git clone https://github.com/codewhen/air_deck_plugin_sdk.git
+cd air_deck_plugin_sdk
+```
+
+Confirm that you can see `tools/plugin.py`. Stay in this folder for the tutorial commands. On Windows substitute `python` for `python3` where needed.
+
+## Prepare Java's JSON dependency
+
+The Java SDK uses Gson. Obtain a Gson JAR from its official Maven Central artifact or a vetted local dependency cache. Keep the absolute path available; the Java build command needs `--gson /path/to/gson.jar`.
+
+The packaging tool includes this JAR in the result. Users need Java, but they do not have to install Gson separately. The build does not silently download a JAR or use an arbitrary online dependency.
+
+## Prepare AirDeck for the real-device step
+
+Download [AirDeck and the helper](/airdeck/download). Install the helper on the computer you will test against and AirDeck on an Android phone. Pair them on your trusted local network.
+
+You can create, compile and exercise the starter protocol without a paired phone. The final installation check needs the helper and phone so you can verify the complete button journey.
+
+Continue to [Create a starter](./create).

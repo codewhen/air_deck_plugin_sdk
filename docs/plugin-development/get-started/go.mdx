@@ -1,0 +1,100 @@
+---
+title: "Your first Go plugin"
+description: "Understand a complete Go starter, then build and test your own package."
+---
+
+## Before you begin
+
+Complete [Set up](./setup), then [Create a starter](./create) using `go`. This chapter assumes your project is called `my-first-plugin` and its ID is `com.yourname.hello`. Substitute your chosen names if they differ.
+
+Open `deck-plugins/plugins/my-first-plugin/main.go` in your editor. Here is the complete generated implementation:
+
+```go
+package main
+
+import (
+    "encoding/json"
+    "fmt"
+    "os"
+    "github.com/codewhen/air_deck_plugin_sdk/deck-plugins/sdk/go/decksdk"
+)
+
+const pluginID = "com.yourname.hello"
+type plugin struct{}
+
+func (p *plugin) Catalog() []decksdk.Button {
+    return []decksdk.Button{{
+        ID: "hello.say", Title: "Say hello", Action: "hello", PluginID: pluginID,
+        IconKey: "plugins", Columns: 1, Rows: 1,
+        Editor: &decksdk.EditorOpts{Tap: true},
+    }}
+}
+
+func (p *plugin) Invoke(typ, action string, body, payload json.RawMessage) error {
+    if action != "hello" { return fmt.Errorf("unknown action: %s", action) }
+    fmt.Fprintln(os.Stderr, "Hello from AirDeck!")
+    return nil
+}
+
+func main() { decksdk.Run(&plugin{}) }
+```
+
+## How the Go code works
+
+`plugin` implements the SDK's required interface. `Catalog` returns one `Button`; it does not perform the action. The helper can call it to discover what this plugin offers.
+
+`Invoke` receives the selected action. It accepts `hello`, writes a diagnostic message to `os.Stderr`, and returns `nil` to report success. Other action names return an error. This protects the plugin from silently accepting a typo or an unsupported saved action.
+
+`decksdk.Run` starts the stdin/stdout loop. It reads helper messages, preserves request IDs and sends the result. Let the SDK own that loop; do not add your own JSON reader around it.
+
+The `body` and `payload` arguments are raw JSON. The starter does not need them. Later, decode only the fields your action expects, validate them, and return an error for invalid input. The `typ` argument identifies the routed message type.
+
+`EditorOpts{Tap: true}` exposes a tap action. It does not declare toggle support because the starter has no on/off state.
+
+## Follow a button press through the code
+
+1. The helper asks for a catalog. Your catalog function returns **Say hello** with action `hello`.
+2. The phone shows that action in the plugin library after installation.
+3. When the saved button is tapped, the helper invokes `hello` on your plugin.
+4. Your handler writes `Hello from AirDeck!` to stderr.
+5. The SDK returns the correlated success response. An unknown action produces a correlated error instead.
+
+The installed plugin ID, catalog button ID and action string have different jobs. Read [buttons and actions](../reference/catalog) if you want a more detailed explanation.
+
+## Build the package
+
+From the SDK root:
+
+```sh
+python3 tools/plugin.py build my-first-plugin
+```
+
+The builder reads `airdeck.build.json`, compiles or collects the runtime files, and creates a package. A successful command prints the path to install:
+
+```text
+deck-plugins/dist/starters/my-first-plugin/go/com.yourname.hello.deckPlugin
+```
+
+The package is rebuilt from the current source. Do not edit the executable or ZIP archive to change the plugin's behavior; edit your source and build again.
+
+## Test without the helper
+
+```sh
+python3 tools/plugin.py test my-first-plugin
+```
+
+The test extracts the package into a fresh temporary directory, clears `PYTHONPATH` and `CLASSPATH`, starts the entrypoint and checks three requests: catalog, a successful `hello` invocation, and an unknown action. You should see `PASS isolated package`.
+
+This establishes that the installed package can find its own runtime files. It does not certify phone UI behavior or platform-specific OS actions. Continue to [Build and install](./install) for the full journey.
+
+## Make your first change
+
+Change the diagnostic text to `Hello from my plugin!`, then run the build and test commands again. Next, change the catalog title from `Say hello` to a title meaningful to your action. Keep the action string consistent with the condition in your handler.
+
+After a successful change, add a second button with a new button ID and action string. Handle that action explicitly. Add permissions only when you introduce a broker capability call; the [core capability guide](../reference/capabilities) shows how.
+
+## Platform notes
+
+On Windows use your `python` command in place of `python3`. Build native binaries on the OS/architecture you intend to support. Python/Java Windows packages use a native launcher built with Go; users still need the appropriate runtime.
+
+The generated starters and isolated-package checks have been executed on macOS. The Windows launcher can be cross-compiled, but real Windows helper execution remains a separate verification step.

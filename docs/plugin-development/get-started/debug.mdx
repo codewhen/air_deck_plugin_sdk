@@ -1,0 +1,45 @@
+---
+title: "Debug your first plugin"
+description: "Find the failing stage and fix it with a small, repeatable check."
+---
+
+## Identify the stage that failed
+
+| Symptom | Start here |
+| --- | --- |
+| Create command refuses to run | Folder name, dotted plugin ID, existing destination |
+| Compiler or dependency error | Toolchain/version, Java Gson path, current working directory |
+| Package is created but will not start | Entrypoint, OS/architecture, runtime PATH |
+| Plugin starts but catalog is empty | Catalog fields, plugin identity, stdout contamination |
+| Button appears but does nothing | Action string, exception/error reply, diagnostic output |
+| Capability operation fails | Permissions, `uses`, provider version and OS availability |
+
+Work on one stage at a time. Do not debug phone pairing when the package cannot answer a catalog request on the computer.
+
+## Run the isolated tester
+
+```sh
+python3 tools/plugin.py test my-first-plugin
+```
+
+It should print `PASS isolated package`. The starter tester sends catalog, `hello`, and an unknown action. A timeout means a correlated reply was not received within the test's limit. That can happen if the process crashed, cannot find a runtime dependency, or wrote invalid protocol output.
+
+Read the first build/test error rather than only the final nonzero exit code. Rebuild after changing code; the tester uses the packaged output, not the source file currently open in your editor.
+
+## Log to the correct stream
+
+Use `os.Stderr` in Go, `sys.stderr` in Python, `System.err` in Java and `std::cerr` in C++. The SDK owns stdout for JSON messages.
+
+A successful invocation can include diagnostic output on stderr. A debug print on stdout can break the reply even when the action logic itself worked. Redirect subprocess output explicitly when the child program writes status messages.
+
+## Check identity and action names
+
+Your manifest ID and catalog plugin ID must match. A button's `action` must match the branch handled by `Invoke`/`invoke`. The display title can change independently.
+
+For a quick failure check, deliberately send an unknown action through the tester: it already does this and expects an error. Reporting an error is preferable to silently accepting an action your code does not support.
+
+## Check packaged dependencies
+
+An import or classpath that works in your terminal may not work in a GUI-launched helper. Python needs a local SDK directory in the package. Java needs Gson on the launcher's classpath. Users must have the runtime on PATH as seen by the helper; restart it after PATH changes.
+
+Use [troubleshooting](../reference/troubleshooting) for more cases. Before asking for help, record the helper/SDK version, OS/architecture, reproduction steps and redacted stderr output. Do not include credentials or personal configuration.

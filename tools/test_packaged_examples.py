@@ -11,7 +11,7 @@ import tempfile
 import threading
 import zipfile
 
-def exercise(package):
+def exercise(package, action="beep"):
     with tempfile.TemporaryDirectory(prefix='airdeck-installed-') as tmp:
         root = Path(tmp)
         with zipfile.ZipFile(package) as archive:
@@ -28,7 +28,7 @@ def exercise(package):
         try:
             for request in [
                 {'op':'catalog','ipc_id':'catalog'},
-                {'op':'invoke','ipc_id':'invoke','type':'plugin.command','action':'beep','payload':{},'body':{}},
+                {'op':'invoke','ipc_id':'invoke','type':'plugin.command','action':action,'payload':{},'body':{}},
                 {'op':'invoke','ipc_id':'invalid','type':'plugin.command','action':'does-not-exist','payload':{},'body':{}},
             ]:
                 process.stdin.write(json.dumps(request)+'\n'); process.stdin.flush()
@@ -36,7 +36,9 @@ def exercise(package):
                 except queue.Empty: raise AssertionError(f'{package}: no correlated response; process exit={process.poll()}')
                 assert response['ipc_id'] == request['ipc_id'], response
                 assert response['op'] == ('error' if request['ipc_id']=='invalid' else 'ok'), response
-                if request['ipc_id']=='catalog': assert response['buttons'][0]['action']=='beep', response
+                if request['ipc_id']=='catalog':
+                    assert response['buttons'][0]['action']==action, response
+                    assert response['buttons'][0]['plugin_id']==manifest['id'], response
             print('PASS isolated package:', package)
         finally:
             process.stdin.close()
@@ -46,5 +48,7 @@ def exercise(package):
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--action', default='beep')
     parser.add_argument('packages', nargs='+', type=Path)
-    for package in parser.parse_args().packages: exercise(package.resolve())
+    args = parser.parse_args()
+    for package in args.packages: exercise(package.resolve(), args.action)

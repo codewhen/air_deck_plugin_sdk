@@ -1,0 +1,132 @@
+---
+title: "Pointer capability"
+description: "Pointer motion and clicks through the helper broker."
+---
+
+This page is generated from `core.pointer.json`. Contract version: **1.0.0**. Edit the public schema and run `python3 tools/generate_reference_docs.py` to update the tables and payload shapes.
+
+## Before calling this capability
+
+Declare the permissions needed by your selected methods/topics and a compatible `uses` range for `core.pointer`. Construct the generated client from the SDK host during initialization. Handle denied permissions, incompatible contracts and operational failures.
+
+Motion uses relative deltas. Keep sensitivity within the declared range; test real cursor behavior on the target desktop. The schema defines accepted fields, while the OS adapter determines the actual effect.
+
+Clicks use the declared left/right button values and an explicit double-click boolean. Request pointer permission before making a broker call. Do not describe an unverified compiled binary as a real pointer-control test.
+
+## Permission IDs
+
+| ID | User-facing purpose |
+| --- | --- |
+| `core.pointer.control` | Move the pointer, click and scroll |
+
+## Methods
+
+The method names below are the contract/wire names. Generated clients expose language-appropriate names; use those clients rather than manually inventing JSON fields.
+
+### `move`
+
+Request: `Motion`. Result: `Empty`.
+
+Required permissions: `core.pointer.control`.
+
+Example request payload shape:
+
+```json
+{
+  "dx": 0.5,
+  "dy": 0.5,
+  "sensitivity": 0.5
+}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+### `scroll`
+
+Request: `Motion`. Result: `Empty`.
+
+Required permissions: `core.pointer.control`.
+
+Example request payload shape:
+
+```json
+{
+  "dx": 0.5,
+  "dy": 0.5,
+  "sensitivity": 0.5
+}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+### `click`
+
+Request: `Click`. Result: `Empty`.
+
+Required permissions: `core.pointer.control`.
+
+Example request payload shape:
+
+```json
+{
+  "button": "left",
+  "double_click": false
+}
+```
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+## Topics
+
+This contract declares no state topics.
+
+## Types
+
+These objects are closed: their schema does not allow additional properties. Every listed property is required in this version.
+
+### `Empty`
+
+An empty object: `{}`.
+
+### `Motion`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `dx` | `number` | No additional schema constraint |
+| `dy` | `number` | No additional schema constraint |
+| `sensitivity` | `number` | minimum=0.01; maximum=20 |
+
+Example value shape:
+
+```json
+{
+  "dx": 0.5,
+  "dy": 0.5,
+  "sensitivity": 0.5
+}
+```
+
+### `Click`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `button` | `string` | one of `left`, `right` |
+| `double_click` | `boolean` | No additional schema constraint |
+
+Example value shape:
+
+```json
+{
+  "button": "left",
+  "double_click": false
+}
+```
+
+## Permission groups
+
+No permission groups are declared by this contract.
+
+
+## Verification checklist
+
+Test a valid operation, invalid input, missing/revoked permission, unsupported OS/application behavior and incompatible contract version. For topics, test initial/current state, later updates and unsubscribe. A packaged protocol test alone cannot verify this native operation.

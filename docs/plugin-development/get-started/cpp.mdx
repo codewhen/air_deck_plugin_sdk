@@ -1,0 +1,100 @@
+---
+title: "Your first C++ plugin"
+description: "Understand a complete C++ starter, then build and test your own package."
+---
+
+## Before you begin
+
+Complete [Set up](./setup), then [Create a starter](./create) using `cpp`. This chapter assumes your project is called `my-first-plugin` and its ID is `com.yourname.hello`. Substitute your chosen names if they differ.
+
+Open `deck-plugins/plugins/my-first-plugin/main.cpp` in your editor. Here is the complete generated implementation:
+
+```cpp
+#include "decksdk.hpp"
+#include <iostream>
+#include <stdexcept>
+
+static const char* plugin_id = "com.yourname.hello";
+
+class Plugin : public decksdk::DeckPlugin {
+public:
+    std::vector<decksdk::Button> catalog() override {
+        decksdk::Button button;
+        button.id = "hello.say";
+        button.title = "Say hello";
+        button.action = "hello";
+        button.plugin_id = plugin_id;
+        button.icon_key = "plugins";
+        button.editor_tap = true;
+        return {button};
+    }
+
+    void invoke(const std::string&, const std::string& action,
+                const std::string&, const std::string&) override {
+        if (action != "hello") { throw std::runtime_error("unknown action: " + action); }
+        std::cerr << "Hello from AirDeck!" << std::endl;
+    }
+};
+
+int main() { Plugin plugin; decksdk::run(plugin); }
+```
+
+## How the C++ code works
+
+`Plugin` derives from `decksdk::DeckPlugin`. `catalog` builds a `Button` and returns a vector. Defaults provide a one-by-one button size; the action is exposed as a tap button.
+
+`invoke` receives strings for the routed type, action and JSON body/payload. It checks the action name before executing the action. `std::cerr` is the diagnostic stream. `std::cout` belongs to the SDK's JSON protocol output.
+
+Throwing `std::runtime_error` lets the SDK report a failed invocation. Use a structured `decksdk::CapabilityError` when preserving a broker error code matters.
+
+`decksdk::run(plugin)` starts the host loop. The SDK header includes the generated core capability clients and the vendored nlohmann JSON dependency. The builder supplies both required include paths and preserves licensing notices.
+
+C++ builds produce a native executable. OS, CPU architecture and applicable standard-library runtime must match the user's computer.
+
+## Follow a button press through the code
+
+1. The helper asks for a catalog. Your catalog function returns **Say hello** with action `hello`.
+2. The phone shows that action in the plugin library after installation.
+3. When the saved button is tapped, the helper invokes `hello` on your plugin.
+4. Your handler writes `Hello from AirDeck!` to stderr.
+5. The SDK returns the correlated success response. An unknown action produces a correlated error instead.
+
+The installed plugin ID, catalog button ID and action string have different jobs. Read [buttons and actions](../reference/catalog) if you want a more detailed explanation.
+
+## Build the package
+
+From the SDK root:
+
+```sh
+python3 tools/plugin.py build my-first-plugin
+```
+
+The builder reads `airdeck.build.json`, compiles or collects the runtime files, and creates a package. A successful command prints the path to install:
+
+```text
+deck-plugins/dist/starters/my-first-plugin/cpp/com.yourname.hello.deckPlugin
+```
+
+The package is rebuilt from the current source. Do not edit the executable or ZIP archive to change the plugin's behavior; edit your source and build again.
+
+## Test without the helper
+
+```sh
+python3 tools/plugin.py test my-first-plugin
+```
+
+The test extracts the package into a fresh temporary directory, clears `PYTHONPATH` and `CLASSPATH`, starts the entrypoint and checks three requests: catalog, a successful `hello` invocation, and an unknown action. You should see `PASS isolated package`.
+
+This establishes that the installed package can find its own runtime files. It does not certify phone UI behavior or platform-specific OS actions. Continue to [Build and install](./install) for the full journey.
+
+## Make your first change
+
+Change the diagnostic text to `Hello from my plugin!`, then run the build and test commands again. Next, change the catalog title from `Say hello` to a title meaningful to your action. Keep the action string consistent with the condition in your handler.
+
+After a successful change, add a second button with a new button ID and action string. Handle that action explicitly. Add permissions only when you introduce a broker capability call; the [core capability guide](../reference/capabilities) shows how.
+
+## Platform notes
+
+On Windows use your `python` command in place of `python3`. Build native binaries on the OS/architecture you intend to support. Python/Java Windows packages use a native launcher built with Go; users still need the appropriate runtime.
+
+The generated starters and isolated-package checks have been executed on macOS. The Windows launcher can be cross-compiled, but real Windows helper execution remains a separate verification step.

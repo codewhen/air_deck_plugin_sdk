@@ -1,0 +1,124 @@
+---
+title: "Applications capability"
+description: "List applications and launch a selected target."
+---
+
+This page is generated from `core.apps.json`. Contract version: **1.1.0**. Edit the public schema and run `python3 tools/generate_reference_docs.py` to update the tables and payload shapes.
+
+## Before calling this capability
+
+Declare the permissions needed by your selected methods/topics and a compatible `uses` range for `core.apps`. Construct the generated client from the SDK host during initialization. Handle denied permissions, incompatible contracts and operational failures.
+
+Use the application catalog's returned target for launch where possible. A target is an OS-specific identifier/path understood by the helper, not a portable path you can invent once for every system.
+
+Catalog availability and application names can vary by computer. Validate a selected target, handle launch failure and keep a saved action meaningful when an app is moved or uninstalled.
+
+## Permission IDs
+
+| ID | User-facing purpose |
+| --- | --- |
+| `core.apps.launch` | Launch applications |
+| `core.apps.read` | Read installed application names and launch targets |
+
+## Methods
+
+The method names below are the contract/wire names. Generated clients expose language-appropriate names; use those clients rather than manually inventing JSON fields.
+
+### `launch`
+
+Request: `Launch`. Result: `Empty`.
+
+Required permissions: `core.apps.launch`.
+
+Example request payload shape:
+
+```json
+{
+  "target": "example"
+}
+```
+
+Replace `example` with a real value valid on your target computer. This is a shape example, not a verified external application target.
+
+A successful method returns an empty result object. Inspect the error path when the operation cannot complete.
+
+### `list`
+
+Request: `Empty`. Result: `Applications`.
+
+Required permissions: `core.apps.read`.
+
+Example request payload shape:
+
+```json
+{}
+```
+
+Read the `Applications` type below for the returned fields.
+
+## Topics
+
+This contract declares no state topics.
+
+## Types
+
+These objects are closed: their schema does not allow additional properties. Every listed property is required in this version.
+
+### `Empty`
+
+An empty object: `{}`.
+
+### `Launch`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `target` | `string` | minLength=1 |
+
+Example value shape:
+
+```json
+{
+  "target": "example"
+}
+```
+
+### `Application`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `id` | `string` | No additional schema constraint |
+| `name` | `string` | No additional schema constraint |
+| `target` | `string` | No additional schema constraint |
+
+Example value shape:
+
+```json
+{
+  "id": "example",
+  "name": "example",
+  "target": "example"
+}
+```
+
+### `Applications`
+
+| Field | Type | Constraints |
+| --- | --- | --- |
+| `apps` | `Application[]` | maximum 512 items |
+
+Example value shape:
+
+```json
+{
+  "apps": []
+}
+```
+
+## Permission groups
+
+No permission groups are declared by this contract.
+
+
+## Verification checklist
+
+Test a valid operation, invalid input, missing/revoked permission, unsupported OS/application behavior and incompatible contract version. For topics, test initial/current state, later updates and unsubscribe. A packaged protocol test alone cannot verify this native operation.

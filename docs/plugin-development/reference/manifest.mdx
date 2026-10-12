@@ -3,6 +3,8 @@ title: "Manifest reference"
 description: "Declare identity, entrypoint, resources and required capabilities."
 ---
 
+The manifest is the helper's installation contract. It is different from the starter's local `airdeck.build.json`. Keep its identity, permissions and runtime resources accurate; the packer cannot infer the behavior of your executable.
+
 Every plugin package has a `manifest.json` at its root.
 
 ## A minimal manifest
@@ -56,3 +58,25 @@ Consumers declare `dependencies` for the provider plugin and `uses` for its capa
 Entrypoints and resources stay inside the package. Absolute paths, parent traversal and escaping symlinks are rejected by the packer. Explicitly list runtime dependencies: missing local files are not fetched automatically.
 
 On Windows, native binaries use `.exe`. `tools/build_examples.py` selects the correct entrypoint and packs the runtime files. Changing an ID requires changing the ID reported by the code as well.
+
+## Routing and acknowledgement fields
+
+`mode` is normally `targeted` for a button-driven plugin. `types` lists owned routed message types; leave it empty for an invoke-only starter. The helper also supports `omni` routing for broader event observation, but explicit plugin commands still target their owner. Do not use omni mode as a substitute for declaring required broker permissions.
+
+`ack` defaults to true when omitted. With acknowledgement enabled, an invocation is expected to return success or error. `ack: false` is a fire-and-forget setting for specialized traffic; it reduces the caller's ability to observe failure. Keep the starter's default acknowledgement behavior.
+
+`poll_tier` opts into host-scheduled refresh. Use the host scheduler instead of your own repeating timer. The supported tier policy belongs to the helper release; do not hardcode guessed intervals into a plugin contract.
+
+`builtin` identifies helper-managed packages. Community manifests should not claim built-in status. Being bundled is not elevated broker authority and does not remove required permission checks.
+
+## Versioned requirement objects
+
+A dependency contains `id`, required `min_version`, and optional exclusive `max_version`. A capability use contains `id`, `min_version`, optional exclusive `max_version`, and optional `provider` when a provider plugin owns it.
+
+Specify an upper boundary when the next major version could break your code. Installing a matching plugin version and using a matching capability version are separate checks. See [Versions and upgrades](./versioning).
+
+## Source manifest versus packaged manifest
+
+`capability_schemas` is a source packaging input. The packer validates those JSON files and embeds their contracts in `capabilities` in the archive manifest. The helper consumes the embedded contracts rather than running the generator during installation.
+
+The starter builder also chooses the executable suffix/launcher and lists runtime resources in the packaged `files`. Inspect the final archive manifest when debugging installation, not only the source manifest in your editor.

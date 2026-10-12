@@ -1,0 +1,50 @@
+---
+title: "Build and install"
+description: "Turn a tested starter package into a working button on your phone."
+---
+
+## Build first
+
+From the SDK root:
+
+```sh
+python3 tools/plugin.py build my-first-plugin
+```
+
+For Java add `--gson /absolute/path/to/gson.jar`. Check the printed package path. If you changed the plugin ID, the filename changes too; do not assume an older package filename contains the new source.
+
+A `.deckPlugin` is a ZIP package for the helper, not an Android application. Install it on the computer, not on the phone.
+
+## Verify the installed shape
+
+```sh
+python3 tools/plugin.py test my-first-plugin
+```
+
+The tester unpacks the package elsewhere and exercises its protocol. `PASS isolated package` means the expected catalog/action/error replies were received. Keep this check in your development loop; a plugin that runs only from the source checkout is not ready to distribute.
+
+You can also inspect the archive using a ZIP viewer. Confirm it contains a root `manifest.json`, the declared entrypoint and runtime resources. Python needs its local SDK files. Java needs the plugin JAR, Gson and launcher. Native executables need the right OS and architecture.
+
+## Install on AirDeck Helper
+
+1. Start AirDeck Helper on your computer.
+2. Open **Plugins** and choose the package installation action.
+3. Select the newly built `.deckPlugin` file.
+4. Review the plugin identity/version and any requested permissions before approving installation.
+5. Confirm the plugin is available and enabled.
+
+The Hello starter requests no broker permissions. A later version that adds required permissions needs new approval. Desktop OS permissions, such as input/accessibility access for native controls, are separate from these plugin grants.
+
+## Add the action on Android
+
+Pair the phone with the helper, then open the Stream Deck editor. Find **Hello AirDeck** in the plugin library and select **Say hello**. Add it to a layout, save the layout and tap the button.
+
+The action writes one diagnostic line. Check the helper's plugin diagnostics or terminal/log output for `Hello from AirDeck!`. The isolated tester is the quickest way to confirm the same action without navigating the phone UI.
+
+If the action is missing, check that the installed package is the version you just built, the plugin is enabled, and its catalog is valid. See [Debug your first plugin](./debug).
+
+## Iterate safely
+
+Edit source → build → test → install the update → check the real button. Keep the plugin ID stable so the saved deck action still resolves to the same plugin. Keep button IDs/action names stable when existing saved buttons should keep working.
+
+Increase the version for a release. Test upgrades with an existing saved button as well as clean installs. Do not claim Windows support after a macOS-only run; verify the actual package on a Windows helper.
